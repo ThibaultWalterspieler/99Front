@@ -1,10 +1,13 @@
-import WebGLStore from '../store/WebGLStore'
 import { gsap } from 'gsap';
+import WebGLStore from '../store/WebGLStore';
 import Emitter from "./Emitter";
 
 class Resize {
   constructor() {
-    this.init();
+    // Only initialize on client side
+    if (typeof window !== 'undefined') {
+      this.init();
+    }
   }
 
   init() {
@@ -13,7 +16,10 @@ class Resize {
   }
 
   onResize = () => {
-    const {viewport} = WebGLStore;
+    // Only run on client side
+    if (typeof window === 'undefined') return
+
+    const { viewport } = WebGLStore;
 
     viewport.width = window.innerWidth
     viewport.height = window.innerHeight

@@ -1,6 +1,6 @@
-import gsap from 'gsap'
-import { EventDispatcher } from 'three'
 import { getGPUTier } from 'detect-gpu';
+import gsap from 'gsap';
+import { EventDispatcher } from 'three';
 
 // Tier list -> tier: 1 (>= 15 fps), tier: 2 (>= 30 fps), tier: 3 (>= 60 fps)
 const tier = getGPUTier()
@@ -10,18 +10,24 @@ class WebGLStore extends EventDispatcher {
   #settings
   #state
 
-  constructor () {
+  constructor() {
     super()
 
+    // Check if we're on the client side
+    const isClient = typeof window !== 'undefined'
+    const width = isClient ? window.innerWidth : 1920
+    const height = isClient ? window.innerHeight : 1080
+    const dpr = isClient ? window.devicePixelRatio : 1
+
     this.#viewport = {
-      width: window.innerWidth,
-      height: window.innerHeight,
-      aspect: window.innerWidth / window.innerHeight,
-      dpr: gsap.utils.clamp(1, 2, window.devicePixelRatio),
+      width,
+      height,
+      aspect: width / height,
+      dpr: gsap.utils.clamp(1, 2, dpr),
       breakpoints: {
-        xl: false,
-        lg: false,
-        md: false
+        xl: width >= 1280,
+        lg: width >= 1024,
+        md: width >= 768
       }
     }
 
@@ -62,17 +68,17 @@ class WebGLStore extends EventDispatcher {
     return this.#state.eventsEnabled
   }
 
-  setDeviceSettings ({ tier, isMobile }) {
+  setDeviceSettings({ tier, isMobile }) {
     const { device } = this.#settings
     device.tier = tier
     device.isMobile = isMobile
   }
 
-  setEvents (value = true) {
+  setEvents(value = true) {
     this.#state.eventsEnabled = value
   }
 
-  onResize (width, height) {
+  onResize(width, height) {
     this.#viewport.width = width
     this.#viewport.height = height
     this.#viewport.aspect = width / height

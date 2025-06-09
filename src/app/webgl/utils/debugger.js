@@ -1,12 +1,12 @@
-import { Pane } from "tweakpane";
 import gsap from "gsap";
+import { Pane } from "tweakpane";
 
 const SAFE_PADDING = 8
 const state = {
     pos: {
-        start: {x: 0, y: 0},
-        current: {x: 0, y: 0},
-        last: {x: 0, y: 0},
+        start: { x: 0, y: 0 },
+        current: { x: 0, y: 0 },
+        last: { x: 0, y: 0 },
     },
     threshold: 10,
     moved: false,
@@ -18,9 +18,9 @@ tweak.hidden = false
 export const tweakFolder = tweak.addFolder({ title: 'Debugger' })
 const tabs = tweakFolder.addTab({
     pages: [
-      {title: 'Renderer'},
-      {title: 'Scene'},
-      {title: 'PostFX'},
+        { title: 'Renderer' },
+        { title: 'Scene' },
+        { title: 'PostFX' },
     ],
 });
 export const rendererFolder = tabs.pages[0]
@@ -33,7 +33,10 @@ tweakWrapper.classList.add('tp-wrapper')
 const tweakDragger = tweakFolder.element.children[0]
 
 function onResize() {
-    const {top, left} = tweakContainer.getBoundingClientRect()
+    // Only run on client side
+    if (typeof window === 'undefined') return
+
+    const { top, left } = tweakContainer.getBoundingClientRect()
 
     const x = gsap.utils.clamp(SAFE_PADDING, window.innerWidth - tweakContainer.offsetWidth - SAFE_PADDING, left)
     const y = gsap.utils.clamp(SAFE_PADDING, window.innerHeight - tweakContainer.offsetHeight - SAFE_PADDING, top)
@@ -43,7 +46,7 @@ function onResize() {
     tweakContainer.style.left = `${x}px`
 }
 
-function onDragDown (e) {
+function onDragDown(e) {
     state.pos.start.x = e.clientX
     state.pos.start.y = e.clientY
     state.pressing = true
@@ -51,7 +54,8 @@ function onDragDown (e) {
 }
 
 function onDragMove(e) {
-    if(!state.pressing) return
+    if (!state.pressing) return
+    if (typeof window === 'undefined') return
 
     const dX = e.clientX - state.pos.start.x
     const dY = e.clientY - state.pos.start.y
@@ -75,24 +79,27 @@ function onDragUp() {
     tweakDragger.classList.remove('dragging')
 }
 
-tweakDragger.addEventListener('mousedown', onDragDown)
-tweakDragger.addEventListener('click', (e) => {
-    e.preventDefault();
-    e.stopPropagation();
+// Only initialize event listeners on client side
+if (typeof window !== 'undefined') {
+    tweakDragger.addEventListener('mousedown', onDragDown)
+    tweakDragger.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
 
-    !state.moved && (tweakFolder.expanded = !tweakFolder.expanded)
-    state.moved = false
-}, true)
-document.addEventListener('mousemove', onDragMove)
-document.addEventListener('mouseup', onDragUp)
-document.addEventListener('keyup', (e) => e.key === 'D' && (tweak.hidden = !tweak.hidden))
-window.addEventListener('resize', onResize)
-onResize()
+        !state.moved && (tweakFolder.expanded = !tweakFolder.expanded)
+        state.moved = false
+    }, true)
+    document.addEventListener('mousemove', onDragMove)
+    document.addEventListener('mouseup', onDragUp)
+    document.addEventListener('keyup', (e) => e.key === 'D' && (tweak.hidden = !tweak.hidden))
+    window.addEventListener('resize', onResize)
+    onResize()
+}
 
 export function createFolder(parent, options, el = null) {
     const folder = parent.addFolder(options)
 
-    if(el) {
+    if (el) {
         const defPropsFolder = folder.addFolder({ title: 'Default props' })
         defPropsFolder.expanded = false
         el.visible && defPropsFolder.addBinding(el, 'visible')
@@ -117,7 +124,7 @@ export function copyData(folder) {
     const exportS = folder.exportState()
     function processChildren(children, acc) {
         children.forEach(item => {
-            if(!item.children) {
+            if (!item.children) {
                 acc[item.binding.key] = item.binding.value
             } else {
                 item.children.forEach(nestedItem => {

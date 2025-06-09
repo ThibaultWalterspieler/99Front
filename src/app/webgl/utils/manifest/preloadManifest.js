@@ -1,19 +1,14 @@
-import { createManifestAssets } from './assetsCreator.js'
+// import { createManifestAssets } from './assetsCreator.js'
 
-const textures = import.meta.glob(['../../assets/textures/*', '../../assets/textures/*/*'], { as: 'url', eager: true })
-const hdrs = import.meta.glob('@/assets/hdr/*.hdr', { as: 'url', eager: true })
-const gltfs = import.meta.glob('@/assets/models/*.glb', { as: 'url', eager: true })
-const ktx2s = import.meta.glob('@/assets/*.ktx2', { as: 'url', eager: true })
+// const textures = import.meta.glob(['../../assets/textures/*', '../../assets/textures/*/*'], { as: 'url', eager: true })
+// const hdrs = import.meta.glob('@/assets/hdr/*.hdr', { as: 'url', eager: true })
+// const gltfs = import.meta.glob('@/assets/models/*.glb', { as: 'url', eager: true })
+// const ktx2s = import.meta.glob('@/assets/*.ktx2', { as: 'url', eager: true })
 
-export const manifest = new Map([
-  ...createManifestAssets({ obj: textures, prefix: 'tex', type: 'texture' }).entries(),
-  ...createManifestAssets({ obj: hdrs, prefix: 'hdr', type: 'hdr' }).entries(),
-  ...createManifestAssets({ obj: gltfs, prefix: '', type: 'gltf' }).entries(),
-  ...createManifestAssets({ obj: ktx2s, prefix: 'ktx2', type: 'ktx2' }).entries(),
-  ...createManifestAssets({ obj: hdrjpgs, prefix: 'hdrjpg', type: 'hdrjpg' }).entries()
-])
+// Create empty manifest for now
+export const manifest = new Map()
 
-
+// Keep the asset configurations
 export const assetConfigs = {
   textures: {
     'tex-normal': {
