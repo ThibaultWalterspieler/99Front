@@ -9,19 +9,32 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@rive-app/canvas": "^2.29.2",
+    "detect-gpu": "^5.0.38",
+    "glsl-blend": "^1.0.3",
+    "glsl-fxaa": "^3.0.0",
+    "glsl-noise": "^0.0.0",
+    "gsap": "^3.12.5",
+    "meshoptimizer": "^0.23.0",
+    "next": "15.3.3",
+    "postprocessing": "^6.35.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "next": "15.3.3"
+    "stats-js": "^1.0.1",
+    "three": "^0.165.0",
+    "tiny-emitter": "^2.1.0",
+    "tweakpane": "^4.0.3"
   },
   "devDependencies": {
-    "typescript": "^5",
+    "@eslint/eslintrc": "^3",
+    "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
-    "@tailwindcss/postcss": "^4",
-    "tailwindcss": "^4",
     "eslint": "^9",
     "eslint-config-next": "15.3.3",
-    "@eslint/eslintrc": "^3"
+    "tailwindcss": "^4",
+    "three-perf": "^1.0.10",
+    "typescript": "^5"
   }
 }
