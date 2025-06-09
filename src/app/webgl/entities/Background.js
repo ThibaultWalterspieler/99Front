@@ -5,27 +5,16 @@ import { degToRad } from "three/src/math/MathUtils.js"
 import { getAsset } from "@/js/utils/assetsLoader"
 import WebGLStore from "@/js/webgl/store/WebGLStore"
 import { sceneFolder } from "@/js/utils/debugger"
+import { BACKGROUND_PARAMS } from "../store/constants"
 
 const geometry = new SphereGeometry(10, 16, 32)
-
-const PARAMS = {
-    colorInner: '#54535a',
-    colorMid: '#131e20',
-    colorOuter: '#000000',
-    blurriness: 0,
-    gradientScale1: 0.,
-    gradientScale2: 0.32,
-    gradientScale3: 0.40,
-    gradientSpeed: 0.3,
-
-}
 
 export default class Background extends Object3D {
     constructor(options) {
         super(options)
 
         this.name = options?.name ? `Background-${options.name}` : `Background`
-        this.settings = {...PARAMS, ...options?.settings}
+        this.settings = {...BACKGROUND_PARAMS, ...options?.settings}
 
         this.scale.setScalar(1)
         this.rotation.y = degToRad(90)

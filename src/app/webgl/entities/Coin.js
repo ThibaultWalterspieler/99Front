@@ -6,48 +6,14 @@ import { sceneFolder } from "@/js/utils/debugger";
 import { CustomDrag } from "../components/custom-drag";
 import gsap from "gsap";
 import CustomCursor from "@/js/webgl/components/cursor";
-
-const FACES = {
-    RECTO: 'recto',
-    VERSO: 'verso'
-}
-
-const PARAMS = {
-    debugPointer: false,
-    color: 'rgb(227, 227, 227)',
-    roughness: 0.7,
-    metalness: 0.99,
-    position: {
-        x: 0,
-        y: 0,
-        z: 0
-    },
-    savedRotations: {
-        y: 20,
-        recto: {
-            x: -20,
-            z: 13
-        },
-        verso: {
-            x: -20,
-            z: -13
-        }
-    },
-    scale: window.innerWidth > 768 ? 0.25 : 0.15,
-    flipThreshold: 1,
-    scanlineEnabled: false,
-    dragEnabled: true,
-    dragAxis: 'xy',
-    dragSpeed: 0.05,
-    dragDamping: 0.05
-}
+import { COIN_PARAMS } from "../store/constants";
 
 export default class Coin extends Object3D {
     constructor(options) {
         super(options)
 
         this.name = options?.name ? `Coin-${options.name}` : `Coin`
-        this.settings = {...PARAMS, ...options?.settings}
+        this.settings = {...COIN_PARAMS, ...options?.settings}
 
         this.scale.setScalar(5)
 
@@ -71,7 +37,7 @@ export default class Coin extends Object3D {
 
        this.coin.position.set(0, 0, 0)
        this.coin.scale.setScalar(this.settings.scale)
-       this.face = FACES.RECTO
+       this.face = this.settings.faces[0]
 
        this.uniforms = {
         uTime: { value: 0 },
@@ -79,9 +45,9 @@ export default class Coin extends Object3D {
        }
 
        this.material = new MeshStandardMaterial({
-        color: new Color(PARAMS.color),
-        roughness: PARAMS.roughness,
-        metalness: PARAMS.metalness,
+        color: new Color(COIN_PARAMS.color),
+        roughness: COIN_PARAMS.roughness,
+        metalness: COIN_PARAMS.metalness,
         metalnessMap: metallicMap,
         normalMap: normalMap,
         roughnessMap: roughnessMap,
@@ -253,7 +219,7 @@ export default class Coin extends Object3D {
 
         // If distance is passed a certain threshold (-0.5 / 0.5) flip the coin
         if(distance.x > this.settings.flipThreshold || distance.x <= -this.settings.flipThreshold) {
-            this.face = this.face === FACES.RECTO ? FACES.VERSO : FACES.RECTO;
+            this.face = this.face === this.settings.faces[0] ? this.settings.faces[1] : this.settings.faces[0];
 
             const rotationOffset = direction.horizontal === 'right' ? 180 : -180;
             this.settings.savedRotations.y = this.settings.savedRotations.y + rotationOffset
@@ -281,28 +247,32 @@ export default class Coin extends Object3D {
 
     addDebug() {
         const coinFolder = sceneFolder.addFolder({title: 'Coin'})
-        coinFolder.addBinding(PARAMS, 'color').on('change', (ev) => { this.material.color.set(ev.value) })
-        coinFolder.addBinding(PARAMS, 'roughness').on('change', (ev) => { this.material.roughness = ev.value })
-        coinFolder.addBinding(PARAMS, 'metalness').on('change', (ev) => { this.material.metalness = ev.value })
-        coinFolder.addBinding(PARAMS.position, 'x', {min: -5, max: 5}).on('change', (ev) => { this.position.x = ev.value })
-        coinFolder.addBinding(PARAMS.position, 'y', {min: -5, max: 5}).on('change', (ev) => { this.position.y = ev.value })
-        coinFolder.addBinding(PARAMS.position, 'z', {min: -5, max: 5}).on('change', (ev) => { this.position.z = ev.value })
-        coinFolder.addBinding(PARAMS.savedRotations.recto, 'x', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.x = degToRad(ev.value) })
-        coinFolder.addBinding(PARAMS.savedRotations, 'y', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.y = degToRad(ev.value) })
-        coinFolder.addBinding(PARAMS.savedRotations.recto, 'z', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.z = degToRad(ev.value) })
+        coinFolder.addBinding(COIN_PARAMS, 'color').on('change', (ev) => { this.material.color.set(ev.value) })
+        coinFolder.addBinding(COIN_PARAMS, 'roughness').on('change', (ev) => { this.material.roughness = ev.value })
+        coinFolder.addBinding(COIN_PARAMS, 'metalness').on('change', (ev) => { this.material.metalness = ev.value })
+        coinFolder.addBinding(COIN_PARAMS.position, 'x', {min: -5, max: 5}).on('change', (ev) => { this.position.x = ev.value })
+        coinFolder.addBinding(COIN_PARAMS.position, 'y', {min: -5, max: 5}).on('change', (ev) => { this.position.y = ev.value })
+        coinFolder.addBinding(COIN_PARAMS.position, 'z', {min: -5, max: 5}).on('change', (ev) => { this.position.z = ev.value })
+        coinFolder.addBinding(COIN_PARAMS.savedRotations.recto, 'x', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.x = degToRad(ev.value) })
+        coinFolder.addBinding(COIN_PARAMS.savedRotations, 'y', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.y = degToRad(ev.value) })
+        coinFolder.addBinding(COIN_PARAMS.savedRotations.recto, 'z', {min: -180, max: 180}).on('change', (ev) => { this.coin.rotation.z = degToRad(ev.value) })
         
         if (this.drag) {
             const dragFolder = coinFolder.addFolder({title: 'Drag'})
-            dragFolder.addBinding(PARAMS, 'dragEnabled').on('change', (ev) => { 
-                ev.value ? this.drag.enable() : this.drag.disable()
+            dragFolder.addBinding(COIN_PARAMS, 'dragEnabled').on('change', (ev) => { 
+                if(ev.value) {
+                    this.drag.enable()
+                } else {
+                    this.drag.disable()
+                }
             })
-            dragFolder.addBinding(PARAMS, 'dragAxis', {options: {xy: 'xy', x: 'x', y: 'y'}}).on('change', (ev) => { 
+            dragFolder.addBinding(COIN_PARAMS, 'dragAxis', {options: {xy: 'xy', x: 'x', y: 'y'}}).on('change', (ev) => { 
                 this.drag.setAxis(ev.value)
             })
-            dragFolder.addBinding(PARAMS, 'dragSpeed', {min: 0.001, max: 0.1}).on('change', (ev) => { 
+            dragFolder.addBinding(COIN_PARAMS, 'dragSpeed', {min: 0.001, max: 0.1}).on('change', (ev) => { 
                 this.drag.settings.speed = ev.value
             })
-            dragFolder.addBinding(PARAMS, 'dragDamping', {min: 0, max: 0.5}).on('change', (ev) => { 
+            dragFolder.addBinding(COIN_PARAMS, 'dragDamping', {min: 0, max: 0.5}).on('change', (ev) => { 
                 this.drag.settings.damping = ev.value
             })
         }
