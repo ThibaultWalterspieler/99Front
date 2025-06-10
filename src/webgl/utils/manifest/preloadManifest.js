@@ -1,9 +1,11 @@
+
 import { createManifestAssets } from '@99Stud/webgl/utils/manifest/assetsCreator'
 
 const textures = {
   'gradient': '/assets/textures/gradient.png',
   'normal': '/assets/textures/normal.png',
-  'bluenoise': '/assets/textures/bluenoise.png'
+  'bluenoise': '/assets/textures/bluenoise.png',
+  '99stud': '/assets/textures/99stud.png'
 }
 
 const hdrs = {
@@ -57,9 +59,10 @@ export const assetConfigs = {
       type: 'texture',
       flipY: true
     },
-    'tex-env': {
+    'tex-99stud': {
       type: 'texture',
-      flipY: true
+      tiled: true,
+      flipY: false
     }
   }
 }

@@ -2,6 +2,7 @@ import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 
 import Renderer from '@99Stud/webgl/components/Renderer';
+import { CONTROLS_ENABLED } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 
 class Camera extends PerspectiveCamera {
@@ -21,7 +22,7 @@ class Camera extends PerspectiveCamera {
 
   initOrbitControl() {
     this.controls = new OrbitControls(this, Renderer.domElement);
-    this.controls.enabled = false;
+    this.controls.enabled = CONTROLS_ENABLED;
   }
 
   calculateUnitSize(distance = this.position.z) {
@@ -36,7 +37,9 @@ class Camera extends PerspectiveCamera {
   }
 
   onTick() {
-    this.controls.update()
+    if (CONTROLS_ENABLED) {
+      this.controls.update()
+    }
   }
 
   onResize() {
