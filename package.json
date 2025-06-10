@@ -3,17 +3,28 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "@rive-app/canvas": "^2.29.2",
+    "detect-gpu": "^5.0.38",
     "eslint-config-prettier": "10.1.5",
+    "glsl-blend": "^1.0.3",
+    "glsl-fxaa": "^3.0.0",
+    "glsl-noise": "^0.0.0",
+    "gsap": "^3.12.5",
+    "meshoptimizer": "^0.23.0",
     "next": "15.3.3",
+    "postprocessing": "^6.35.5",
     "react": "19.1.0",
     "react-dom": "19.1.0",
-    "sass": "1.89.2"
+    "sass": "1.89.2",
+    "three": "^0.165.0",
+    "tiny-emitter": "^2.1.0",
+    "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
@@ -25,7 +36,10 @@
     "eslint": "9.28.0",
     "eslint-config-next": "15.3.3",
     "eslint-plugin-react-hooks": "5.2.0",
+    "stats-js": "^1.0.1",
     "tailwindcss": "4.1.8",
+    "three-perf": "^1.0.11",
+    "tweakpane": "^4.0.3",
     "typescript": "5.8.3"
   },
   "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"

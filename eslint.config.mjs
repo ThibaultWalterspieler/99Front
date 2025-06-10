@@ -15,6 +15,9 @@ const eslintConfig = [
   ...compat.extends("next/core-web-vitals", "next/typescript"),
   eslintConfigPrettier,
   {
+    ignores: ["**/public/**"],
+  },
+  {
     rules: {
       "@typescript-eslint/no-unused-vars": [
         "error",
