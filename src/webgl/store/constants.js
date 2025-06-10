@@ -1,6 +1,6 @@
 import WebGLStore from "@99Stud/webgl/store/WebGLStore";
 
-export const CONTROLS_ENABLED = true;
+export const CONTROLS_ENABLED = false;
 
 export const COIN_PARAMS = {
     debugPointer: false,
@@ -27,7 +27,7 @@ export const COIN_PARAMS = {
     scale: WebGLStore.viewport.width > 768 ? 0.25 : 0.15,
     flipThreshold: 1,
     scanlineEnabled: false,
-    dragEnabled: false,
+    dragEnabled: true,
     dragAxis: 'xy',
     dragSpeed: 0.05,
     dragDamping: 0.05
