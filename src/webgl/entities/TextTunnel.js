@@ -15,7 +15,7 @@ const PARAMS = {
         uCellScale: { value: 6.0 },
         uTimeScale: { value: 30.0 },
         uThresholdMin: { value: 0.92 },
-        uThresholdMax: { value: 0.93 },
+        uThresholdMax: { value: 1.0 },
         uTransitionWidth: { value: 1.0 },
         uAnimationOffset: { value: 1.0 }
     }
@@ -219,7 +219,7 @@ export default class TextureTunnel extends Object3D {
                     float randomOffset = fract(sin(dot(randomSeed, vec2(12.9898, 78.233))) * 43758.5453);
                     alphaTransition *= (0.8 + randomOffset * 0.4);
 
-                    vec4 diffuse = coverTexture(tTexture, vec2(1.0, 1.0), vec2(1.0 - uv.x + uTime, uv.y + uTime) * 5.0, uResolution);
+                    vec4 diffuse = coverTexture(tTexture, vec2(1.0, 1.0), vec2(1.0 - uv.x + uTime, uv.y - uTime * 2.0) * 5.0, uResolution);
 
                     // Apply the controlled alpha
                     diffuse.a = alphaTransition;
