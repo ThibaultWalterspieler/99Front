@@ -255,8 +255,8 @@ export default class Coin extends Object3D {
     });
   };
 
-  onDrag = ({ distance }) => {
-    const mappedRotation = gsap.utils.mapRange(-1, 1, -60, 60, distance.x);
+  onDrag = ({ distance, delta }) => {
+    const mappedRotation = gsap.utils.mapRange(-1, 1, -60, 60, distance.x * this.settings.dragSpeed);
     const targetRotation = Math.max(
       Math.min(degToRad(mappedRotation), degToRad(60)),
       degToRad(-60),

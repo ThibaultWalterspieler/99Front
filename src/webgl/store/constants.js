@@ -26,12 +26,12 @@ export const COIN_PARAMS = {
     },
   },
   scale: 0.25,
-  flipThreshold: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.15 : 1,
+  flipThreshold: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.1 : 1,
   scanlineEnabled: false,
   dragEnabled: true,
   dragAxis: 'xy',
-  dragSpeed: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.75 : 0.05,
-  dragDamping: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.75 : 0.05,
+  dragSpeed: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 3 : 1,
+  dragDamping: WebGLStore.deviceSettings.isMobile ? 0.75 : 0.05,
 };
 
 export const BACKGROUND_PARAMS = {
