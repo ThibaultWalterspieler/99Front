@@ -27,7 +27,7 @@ export default class Coin extends Object3D {
 
     this.baseScale = 5;
     this.baseRotation = 0;
-    this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
+    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 800) : this.baseScale;
 
     this.rotation.set(degToRad(90), degToRad(90), degToRad(90));
     this.scale.setScalar(0);
@@ -385,9 +385,10 @@ export default class Coin extends Object3D {
   onResize() {
     this.uniforms.uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
 
-    this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
 
     if (!WebGLStore.viewport.breakpoints.md) {
+      this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
+
       if (this.hasTransitionedIn) {
         this.scale.setScalar(this.responsiveScale);
       }
