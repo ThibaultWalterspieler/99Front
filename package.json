@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@rive-app/canvas": "^2.29.2",
+    "@vercel/analytics": "^1.5.0",
     "detect-gpu": "^5.0.38",
     "eslint-config-prettier": "10.1.5",
     "glsl-blend": "^1.0.3",
