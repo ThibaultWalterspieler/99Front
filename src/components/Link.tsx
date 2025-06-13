@@ -7,7 +7,7 @@ interface ExternalLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
 const ExternalLink: FC<ExternalLinkProps> = ({ children, href, ...props }) => {
     return (
         <a
-            className="link uppercase text-xs md:text-sm text-white opacity-60 hover:opacity-100 transition-opacity duration-100 mix-blend-overlay w-fit h-fit"
+            className="link uppercase text-[10px] md:text-sm text-white opacity-30 hover:opacity-100 transition-opacity duration-100 mix-blend-overlay w-fit h-fit"
             href={href}
             rel="noopener noreferrer"
             target="_blank"

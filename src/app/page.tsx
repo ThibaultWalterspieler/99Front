@@ -25,7 +25,7 @@ export default function Home() {
     <div className="relative w-full h-screen overflow-hidden pointer-events-auto">
       <WebGLContext />
 
-      <div className="link-wrapper absolute z-50 top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
+      <div className="link-wrapper absolute z-50 bottom-[20px] md:top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
         {links.map((link) => (
           <ExternalLink href={link.href} key={link.href}>{link.label}</ExternalLink>
         ))}
