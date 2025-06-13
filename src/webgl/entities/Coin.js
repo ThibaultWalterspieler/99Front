@@ -27,7 +27,9 @@ export default class Coin extends Object3D {
 
     this.baseScale = 5;
     this.baseRotation = 0;
-    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 725) : this.baseScale;
+    this.responsiveScale = !WebGLStore.viewport.breakpoints.md
+      ? this.baseScale * (WebGLStore.viewport.width / 725)
+      : this.baseScale;
 
     this.rotation.set(degToRad(90), degToRad(90), degToRad(90));
     this.scale.setScalar(0);
@@ -172,7 +174,7 @@ export default class Coin extends Object3D {
   }
 
   async transitionIn() {
-    const tlIn = gsap.timeline()
+    const tlIn = gsap.timeline();
     const duration = 2;
 
     tlIn.to(this.scale, {
@@ -183,17 +185,21 @@ export default class Coin extends Object3D {
       ease: 'elastic.out(1, 0.9)',
     });
 
-    tlIn.to(this.rotation, {
-      x: degToRad(this.baseRotation),
-      y: degToRad(this.baseRotation),
-      z: degToRad(this.baseRotation),
-      duration: duration,
-      ease: 'elastic.out(1, 0.9)',
-    }, '<');
+    tlIn.to(
+      this.rotation,
+      {
+        x: degToRad(this.baseRotation),
+        y: degToRad(this.baseRotation),
+        z: degToRad(this.baseRotation),
+        duration: duration,
+        ease: 'elastic.out(1, 0.9)',
+      },
+      '<',
+    );
 
     tlIn.eventCallback('onComplete', () => {
       this.hasTransitionedIn = true;
-    })
+    });
   }
 
   setupTweens() {
@@ -240,7 +246,10 @@ export default class Coin extends Object3D {
   // - Based on the direction lerp the values accordingly in order to prevent multiple 360° rotations
 
   onDragStart = async () => {
-    const targetScale = WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? this.settings.scale * 1.2 : this.settings.scale * 1.05;
+    const targetScale =
+      WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md
+        ? this.settings.scale * 1.2
+        : this.settings.scale * 1.05;
 
     this.initialRotationY = this.coin.rotation.y;
 
@@ -255,8 +264,14 @@ export default class Coin extends Object3D {
     });
   };
 
-  onDrag = ({ distance, delta }) => {
-    const mappedRotation = gsap.utils.mapRange(-1, 1, -60, 60, distance.x * this.settings.dragSpeed);
+  onDrag = ({ distance }) => {
+    const mappedRotation = gsap.utils.mapRange(
+      -1,
+      1,
+      -60,
+      60,
+      distance.x * this.settings.dragSpeed,
+    );
     const targetRotation = Math.max(
       Math.min(degToRad(mappedRotation), degToRad(60)),
       degToRad(-60),
@@ -371,7 +386,11 @@ export default class Coin extends Object3D {
   }
 
   onTick({ time, rafDamp }) {
-    if (!this.settings.debugPointer && !this.drag?.state?.isDragging && !WebGLStore.deviceSettings.isMobile) {
+    if (
+      !this.settings.debugPointer &&
+      !this.drag?.state?.isDragging &&
+      !WebGLStore.deviceSettings.isMobile
+    ) {
       this.coin.rotation.y += -GlobalPointer.state.velocity.x * (0.01 * rafDamp);
       this.coin.rotation.x += GlobalPointer.state.velocity.y * (0.01 * rafDamp);
     }
