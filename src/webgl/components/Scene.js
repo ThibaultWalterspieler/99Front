@@ -34,7 +34,7 @@ class Stage extends Scene {
     this.coin = new Coin();
     this.add(this.coin);
 
-    if (!WebGLStore.deviceSettings.isMobile) {
+    if (!WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md) {
       this.tunnel = new TextureTunnel();
       this.add(this.tunnel);
     }

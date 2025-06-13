@@ -25,12 +25,14 @@ export default class Coin extends Object3D {
     this.name = options?.name ? `Coin-${options.name}` : `Coin`;
     this.settings = { ...COIN_PARAMS, ...options?.settings };
 
-    this.scale.setScalar(5);
+    this.responsiveScale = 5;
+    this.scale.setScalar(this.responsiveScale);
 
     this.init();
     this.setupTweens();
     this.setupDrag();
     this.addDebug();
+    this.onResize();
   }
 
   init() {
@@ -348,7 +350,12 @@ export default class Coin extends Object3D {
 
   onResize() {
     this.uniforms.uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
-    this.coin.scale.setScalar(this.settings.scale);
+
+    if (!WebGLStore.viewport.breakpoints.md) {
+      this.scale.setScalar(this.responsiveScale * (WebGLStore.viewport.width / 800));
+    } else {
+      this.scale.setScalar(this.responsiveScale);
+    }
   }
 
   dispose() {

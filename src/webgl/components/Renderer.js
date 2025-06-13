@@ -29,7 +29,6 @@ class Renderer extends WebGLRenderer {
     this.stats.dom.style.justifyContent = 'flex-start';
     this.stats.dom.style.pointerEvents = 'none';
 
-    console.log(this.stats.dom.children);
     for (const child of this.stats.dom.children) {
       child.style.display = 'inline-block';
     }

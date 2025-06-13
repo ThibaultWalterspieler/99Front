@@ -24,13 +24,13 @@ export const COIN_PARAMS = {
       z: -13,
     },
   },
-  scale: WebGLStore.deviceSettings.isMobile ? 0.15 : 0.25,
-  flipThreshold: 1,
+  scale: 0.25,
+  flipThreshold: WebGLStore.deviceSettings.isMobile ? 0.2 : 1,
   scanlineEnabled: false,
   dragEnabled: true,
   dragAxis: 'xy',
-  dragSpeed: 0.05,
-  dragDamping: 0.05,
+  dragSpeed: WebGLStore.deviceSettings.isMobile ? 0.75 : 0.05,
+  dragDamping: WebGLStore.deviceSettings.isMobile ? 0.75 : 0.05,
 };
 
 export const BACKGROUND_PARAMS = {
