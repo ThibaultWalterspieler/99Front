@@ -390,13 +390,13 @@ export default class Coin extends Object3D {
     if (
       !this.settings.debugPointer &&
       !this.drag?.state?.isDragging &&
-      !WebGLStore.deviceSettings.isMobile
+      WebGLStore.viewport.breakpoints.md
     ) {
       this.coin.rotation.y += -GlobalPointer.state.velocity.x * (0.01 * rafDamp);
       this.coin.rotation.x += GlobalPointer.state.velocity.y * (0.01 * rafDamp);
     }
 
-    if (WebGLStore.deviceSettings.isMobile) {
+    if (!WebGLStore.viewport.breakpoints.md) {
       this.coin.position.y = Math.sin(time * 1.2) * 0.01;
     } else {
       this.coin.position.y = Math.sin(time * 1.2) * 0.005;

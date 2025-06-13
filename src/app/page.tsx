@@ -22,7 +22,15 @@ const links = [
 
 export default function Home() {
   return (
-    <div className="relative w-full h-screen overflow-hidden pointer-events-none">
+    <div 
+      className="relative w-full h-screen overflow-hidden user-select-none pointer-events-none touch-none"
+      style={{
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'none',
+      }}
+    >
       <WebGLContext />
 
       <div className="link-wrapper overflow-hidden pointer-events-auto absolute z-50 bottom-[20px] md:top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
