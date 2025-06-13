@@ -336,7 +336,7 @@ export default class Coin extends Object3D {
   }
 
   onTick({ time, rafDamp }) {
-    if (!this.settings.debugPointer && !this.drag?.state?.isDragging && window.innerWidth > 768) {
+    if (!this.settings.debugPointer && !this.drag?.state?.isDragging && !WebGLStore.deviceSettings.isMobile) {
       this.coin.rotation.y += -GlobalPointer.state.velocity.x * (0.01 * rafDamp);
       this.coin.rotation.x += GlobalPointer.state.velocity.y * (0.01 * rafDamp);
     }
@@ -344,6 +344,11 @@ export default class Coin extends Object3D {
     this.coin.position.y = Math.sin(time * 1.2) * 0.005;
 
     this.uniforms.uTime.value += 0.01 * rafDamp;
+  }
+
+  onResize() {
+    this.uniforms.uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
+    this.coin.scale.setScalar(this.settings.scale);
   }
 
   dispose() {
