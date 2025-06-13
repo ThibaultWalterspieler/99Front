@@ -4,6 +4,8 @@ import Camera from '@99Stud/webgl/components/Camera';
 import Emitter from '@99Stud/webgl/events/Emitter';
 import { debounce } from '@99Stud/webgl/utils/debounce';
 
+const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+
 /**
  * @typedef {Object} DragSettings
  * @property {boolean} [dragEnabled=true] - Whether dragging is enabled
@@ -19,6 +21,12 @@ import { debounce } from '@99Stud/webgl/utils/debounce';
  * @property {boolean} [debounceLeading=true] - Execute onDragStart on leading edge
  * @property {number} [debounceEndDelay=50] - Debounce delay for onDragEnd in milliseconds
  * @property {boolean} [debounceEndLeading=true] - Execute onDragEnd on leading edge
+ * @property {boolean} [momentum=true] - Whether momentum is enabled
+ * @property {number} [momentumDecay=0.95] - Momentum decay rate
+ * @property {number} [momentumThreshold=0.1] - Minimum momentum threshold
+ * @property {number} [touchSensitivity=1.5] - Touch sensitivity multiplier
+ * @property {boolean} [preventScroll=true] - Whether to prevent default scroll behavior
+ * @property {number} [touchStartThreshold=5] - Minimum distance to start dragging
  */
 const DEFAULT_SETTINGS = {
   dragEnabled: true,
@@ -28,10 +36,16 @@ const DEFAULT_SETTINGS = {
   damping: 0.1,
   bounds: null,
   usePlane: true,
-  debounceDelay: 300,
+  debounceDelay: isTouchDevice ? 100 : 300,
   debounceLeading: true,
-  debounceEndDelay: 50,
+  debounceEndDelay: isTouchDevice ? 20 : 50,
   debounceEndLeading: true,
+  momentum: isTouchDevice,
+  momentumDecay: 0.95,
+  momentumThreshold: 0.1,
+  touchSensitivity: 1.5,
+  preventScroll: true,
+  touchStartThreshold: 5,
 };
 
 /**
@@ -80,6 +94,10 @@ export class CustomDrag {
         vertical: DIRECTION.NONE,
       },
       distance: { x: 0, y: 0 },
+      momentum: new Vector2(),
+      lastTouchTime: 0,
+      touchStartTime: 0,
+      touchStartPos: new Vector2(),
     };
 
     this.raycaster = new Raycaster();
@@ -87,24 +105,24 @@ export class CustomDrag {
     this._tempVector = new Vector3();
 
     // Store callbacks and create debounced versions
-    const originalOnDragStart = options?.onDragStart || (() => {});
-    const originalOnDragEnd = options?.onDragEnd || (() => {});
+    const originalOnDragStart = options?.onDragStart || (() => { });
+    const originalOnDragEnd = options?.onDragEnd || (() => { });
 
     this.callbacks = {
       onDragStart:
         this.settings.debounceDelay > 0
           ? debounce(originalOnDragStart, this.settings.debounceDelay, {
-              leading: this.settings.debounceLeading,
-              trailing: !this.settings.debounceLeading,
-            })
+            leading: this.settings.debounceLeading,
+            trailing: !this.settings.debounceLeading,
+          })
           : originalOnDragStart,
-      onDrag: options?.onDrag || (() => {}),
+      onDrag: options?.onDrag || (() => { }),
       onDragEnd:
         this.settings.debounceEndDelay > 0
           ? debounce(originalOnDragEnd, this.settings.debounceEndDelay, {
-              leading: this.settings.debounceEndLeading,
-              trailing: !this.settings.debounceEndLeading,
-            })
+            leading: this.settings.debounceEndLeading,
+            trailing: !this.settings.debounceEndLeading,
+          })
           : originalOnDragEnd,
     };
 
@@ -174,6 +192,13 @@ export class CustomDrag {
     const intersects = this.raycaster.intersectObject(this.target, true);
 
     if (intersects.length > 0) {
+      this.state.touchStartTime = Date.now();
+      this.state.touchStartPos.copy(state.pos);
+
+      if (this.settings.preventScroll && isTouchDevice) {
+        state.event?.preventDefault();
+      }
+
       this.startDrag(state.pos, intersects[0]);
     }
   };
@@ -184,6 +209,9 @@ export class CustomDrag {
    */
   onPointerMove = ({ state }) => {
     if (!this.state.isDragging) return;
+
+    this.state.lastTouchTime = Date.now();
+
     this.updateDrag(state.pos, state.mappedPos);
   };
 
@@ -191,8 +219,23 @@ export class CustomDrag {
    * Handle pointer up event
    * @private
    */
-  onPointerUp = () => {
+  onPointerUp = ({ _state, _e }) => {
     if (this.state.isDragging) {
+      // Calculate momentum if enabled
+      if (this.settings.momentum && isTouchDevice) {
+        const touchDuration = Date.now() - this.state.touchStartTime;
+        // Use the current position from our state instead of the event state
+        const touchDistance = new Vector2().subVectors(
+          this.state.currentPos,
+          this.state.touchStartPos
+        );
+
+        // Only apply momentum if the touch was quick enough and moved far enough
+        if (touchDuration < 300 && touchDistance.length() > this.settings.touchStartThreshold) {
+          this.state.momentum.copy(touchDistance).multiplyScalar(1 / touchDuration * this.settings.touchSensitivity);
+        }
+      }
+
       this.endDrag();
     }
   };
@@ -329,6 +372,21 @@ export class CustomDrag {
    * @private
    */
   updateTargetPosition(dragData) {
+    if (this.settings.momentum && isTouchDevice && !this.state.isDragging) {
+      if (this.state.momentum.length() > this.settings.momentumThreshold) {
+        const momentumDelta = new Vector3(
+          this.state.momentum.x * this.settings.speed,
+          -this.state.momentum.y * this.settings.speed,
+          0
+        );
+
+        dragData.position.add(momentumDelta);
+        this.state.momentum.multiplyScalar(this.settings.momentumDecay);
+      } else {
+        this.state.momentum.set(0, 0);
+      }
+    }
+
     if (this.settings.damping > 0) {
       this.target.position.lerp(dragData.position, 1 - this.settings.damping);
     } else {
@@ -420,9 +478,9 @@ export class CustomDrag {
     this.callbacks.onDragStart =
       delay > 0
         ? debounce(originalOnDragStart, delay, {
-            leading,
-            trailing: !leading,
-          })
+          leading,
+          trailing: !leading,
+        })
         : originalOnDragStart;
   }
 
@@ -450,10 +508,38 @@ export class CustomDrag {
     this.callbacks.onDragEnd =
       delay > 0
         ? debounce(originalOnDragEnd, delay, {
-            leading,
-            trailing: !leading,
-          })
+          leading,
+          trailing: !leading,
+        })
         : originalOnDragEnd;
+  }
+
+  /**
+   * Set momentum settings
+   * @public
+   * @param {boolean} enabled - Whether momentum is enabled
+   * @param {Object} [options] - Momentum options
+   * @param {number} [options.decay=0.95] - Momentum decay rate
+   * @param {number} [options.threshold=0.1] - Minimum momentum threshold
+   * @param {number} [options.sensitivity=1.5] - Touch sensitivity multiplier
+   */
+  setMomentum(enabled, options = {}) {
+    this.settings.momentum = enabled;
+    if (options.decay !== undefined) this.settings.momentumDecay = options.decay;
+    if (options.threshold !== undefined) this.settings.momentumThreshold = options.threshold;
+    if (options.sensitivity !== undefined) this.settings.touchSensitivity = options.sensitivity;
+  }
+
+  /**
+   * Set touch-specific settings
+   * @public
+   * @param {Object} options - Touch settings
+   * @param {boolean} [options.preventScroll=true] - Whether to prevent default scroll behavior
+   * @param {number} [options.startThreshold=5] - Minimum distance to start dragging
+   */
+  setTouchSettings(options = {}) {
+    if (options.preventScroll !== undefined) this.settings.preventScroll = options.preventScroll;
+    if (options.startThreshold !== undefined) this.settings.touchStartThreshold = options.startThreshold;
   }
 
   /**

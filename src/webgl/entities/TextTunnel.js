@@ -227,7 +227,9 @@ export default class TextureTunnel extends Object3D {
                     float randomOffset = fract(sin(dot(randomSeed, vec2(12.9898, 78.233))) * 43758.5453);
                     alphaTransition *= (0.8 + randomOffset * 0.4);
 
-                    vec4 diffuse = coverTexture(tTexture, vec2(1.0, 1.0), vec2(1.0 - uv.x + uTime, uv.y - uTime * 2.0) * 5.0, uResolution);
+                    // TODO: Fix texture on small resolutions
+                    vec2 textureSize = vec2(1024.0, 1024.0);
+                    vec4 diffuse = coverTexture(tTexture, textureSize, vec2(1.0 - uv.x + uTime, uv.y - uTime * 2.0) * 5.0, uResolution);
 
                     // Apply the controlled alpha
                     diffuse.a = alphaTransition;
@@ -316,5 +318,5 @@ export default class TextureTunnel extends Object3D {
         this.mesh.material.uniforms.uAnimationOffset.value = ev.value;
       });
   }
-  dispose() {}
+  dispose() { }
 }
