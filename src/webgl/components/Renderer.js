@@ -11,45 +11,48 @@ class Renderer extends WebGLRenderer {
       powerPreference: 'high-performance',
       antialias: true,
       depth: true,
-    })
+    });
 
-    this.toneMapping = ACESFilmicToneMapping
-    this.toneMappingExposure = 1
-    this.setClearColor(new Color('#000000'), 1)
+    this.toneMapping = ACESFilmicToneMapping;
+    this.toneMappingExposure = 1;
+    this.setClearColor(new Color('#000000'), 1);
 
-    this.addStats()
-    this.addDebug()
+    this.addStats();
+    this.addDebug();
   }
 
   addStats() {
-    this.stats = new Stats()
-    this.stats.dom.style.position = 'relative'
-    this.stats.dom.style.display = 'flex'
-    this.stats.dom.style.flexDirection = 'row'
-    this.stats.dom.style.justifyContent = 'flex-start'
-    this.stats.dom.style.pointerEvents = 'none'
+    this.stats = new Stats();
+    this.stats.dom.style.position = 'relative';
+    this.stats.dom.style.display = 'flex';
+    this.stats.dom.style.flexDirection = 'row';
+    this.stats.dom.style.justifyContent = 'flex-start';
+    this.stats.dom.style.pointerEvents = 'none';
 
-    console.log(this.stats.dom.children)
+    console.log(this.stats.dom.children);
     for (const child of this.stats.dom.children) {
-      child.style.display = 'inline-block'
+      child.style.display = 'inline-block';
     }
   }
 
   addDebug() {
-    if (!rendererFolder) return
-    rendererFolder.addBinding(this.info.memory, 'geometries', { label: 'geometries', readonly: true })
-    rendererFolder.addBinding(this.info.memory, 'textures', { readonly: true })
-    rendererFolder.addBinding(GlobalRaf, "isPaused", { label: 'Pause Raf' });
-    rendererFolder.children[rendererFolder.children.length - 1].element.after(this.stats.dom)
-    window.addEventListener("keyup", (e) => {
-      if (e.key !== "p") return;
+    if (!rendererFolder) return;
+    rendererFolder.addBinding(this.info.memory, 'geometries', {
+      label: 'geometries',
+      readonly: true,
+    });
+    rendererFolder.addBinding(this.info.memory, 'textures', { readonly: true });
+    rendererFolder.addBinding(GlobalRaf, 'isPaused', { label: 'Pause Raf' });
+    rendererFolder.children[rendererFolder.children.length - 1].element.after(this.stats.dom);
+    window.addEventListener('keyup', (e) => {
+      if (e.key !== 'p') return;
       GlobalRaf.isPaused = !GlobalRaf.isPaused;
       tweak.refresh();
-    })
+    });
   }
 
   onResize() {
-    const { width, height, dpr } = WebGLStore.viewport
+    const { width, height, dpr } = WebGLStore.viewport;
 
     this.setSize(width, height);
     this.setPixelRatio(dpr);
@@ -57,4 +60,4 @@ class Renderer extends WebGLRenderer {
 }
 
 // eslint-disable-next-line import/no-anonymous-default-export
-export default new Renderer()
+export default new Renderer();

@@ -1,49 +1,56 @@
-import { BackSide, Color, Mesh, Object3D, ShaderMaterial, SphereGeometry, Vector2, Vector3 } from "three"
-import { degToRad } from "three/src/math/MathUtils.js"
+import {
+  BackSide,
+  Color,
+  Mesh,
+  Object3D,
+  ShaderMaterial,
+  SphereGeometry,
+  Vector2,
+  Vector3,
+} from 'three';
+import { degToRad } from 'three/src/math/MathUtils.js';
 
-import { BACKGROUND_PARAMS } from "@99Stud/webgl/store/constants"
-import WebGLStore from "@99Stud/webgl/store/WebGLStore"
-import { sceneFolder } from "@99Stud/webgl/utils/debugger"
-import { getAsset } from "@99Stud/webgl/utils/manifest/assetsLoader"
+import { BACKGROUND_PARAMS } from '@99Stud/webgl/store/constants';
+import WebGLStore from '@99Stud/webgl/store/WebGLStore';
+import { sceneFolder } from '@99Stud/webgl/utils/debugger';
+import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
-
-const geometry = new SphereGeometry(10, 16, 32)
+const geometry = new SphereGeometry(10, 16, 32);
 
 export default class Background extends Object3D {
-    constructor(options) {
-        super(options)
+  constructor(options) {
+    super(options);
 
-        this.name = options?.name ? `Background-${options.name}` : `Background`
-        this.settings = { ...BACKGROUND_PARAMS, ...options?.settings }
+    this.name = options?.name ? `Background-${options.name}` : `Background`;
+    this.settings = { ...BACKGROUND_PARAMS, ...options?.settings };
 
-        this.scale.setScalar(1)
-        this.rotation.y = degToRad(90)
+    this.scale.setScalar(1);
+    this.rotation.y = degToRad(90);
 
-        this.init()
-        this.addDebug()
-    }
+    this.init();
+    this.addDebug();
+  }
 
-    init() {
-
-        const material = new ShaderMaterial({
-            uniforms: {
-                uTime: { value: 0 },
-                tGrad: { value: getAsset('tex-gradient') },
-                tBlueNoise: { value: getAsset('tex-bluenoise') },
-                uResolution: { value: new Vector3() },
-                uColorInner: { value: new Color(this.settings.colorInner).convertLinearToSRGB() },
-                uColorMid: { value: new Color(this.settings.colorMid).convertLinearToSRGB() },
-                uColorOuter: { value: new Color(this.settings.colorOuter).convertLinearToSRGB() },
-                uScale: { value: 0 },
-                uGradientScale1: { value: this.settings.gradientScale1 },
-                uGradientScale2: { value: this.settings.gradientScale2 },
-                uGradientScale3: { value: this.settings.gradientScale3 },
-                uGradientSpeed: { value: this.settings.gradientSpeed },
-                uBlurriness: { value: this.settings.blurriness },
-                uBlueNoiseTexelSize: { value: new Vector2(1 / 8, 1 / 8) },
-                uBlueNoiseCoordOffset: { value: new Vector2(0, 0) },
-            },
-            vertexShader: `
+  init() {
+    const material = new ShaderMaterial({
+      uniforms: {
+        uTime: { value: 0 },
+        tGrad: { value: getAsset('tex-gradient') },
+        tBlueNoise: { value: getAsset('tex-bluenoise') },
+        uResolution: { value: new Vector3() },
+        uColorInner: { value: new Color(this.settings.colorInner).convertLinearToSRGB() },
+        uColorMid: { value: new Color(this.settings.colorMid).convertLinearToSRGB() },
+        uColorOuter: { value: new Color(this.settings.colorOuter).convertLinearToSRGB() },
+        uScale: { value: 0 },
+        uGradientScale1: { value: this.settings.gradientScale1 },
+        uGradientScale2: { value: this.settings.gradientScale2 },
+        uGradientScale3: { value: this.settings.gradientScale3 },
+        uGradientSpeed: { value: this.settings.gradientSpeed },
+        uBlurriness: { value: this.settings.blurriness },
+        uBlueNoiseTexelSize: { value: new Vector2(1 / 8, 1 / 8) },
+        uBlueNoiseCoordOffset: { value: new Vector2(0, 0) },
+      },
+      vertexShader: `
                 varying vec4 vMvPos;
                 varying vec3 vWorldPos;
                 varying vec3 vViewDirection;
@@ -60,7 +67,7 @@ export default class Background extends Object3D {
                     vUv = uv;
                 }
             `,
-            fragmentShader: `
+      fragmentShader: `
                 precision highp float;
 
                 uniform float uTime;
@@ -238,59 +245,68 @@ export default class Background extends Object3D {
                 }
 
             `,
-            side: BackSide
-        })
+      side: BackSide,
+    });
 
-        this.mesh = new Mesh(geometry, material)
-        this.add(this.mesh)
-    }
+    this.mesh = new Mesh(geometry, material);
+    this.add(this.mesh);
+  }
 
-    addDebug() {
-        if (!sceneFolder) return
-        const folder = sceneFolder.addFolder({ title: 'Background' })
+  addDebug() {
+    if (!sceneFolder) return;
+    const folder = sceneFolder.addFolder({ title: 'Background' });
 
-        folder.addBinding(this.settings, 'blurriness', { min: 0, max: 1, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uBlurriness.value = ev.value
-        })
+    folder
+      .addBinding(this.settings, 'blurriness', { min: 0, max: 1, step: 0.01 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uBlurriness.value = ev.value;
+      });
 
-        folder.addBinding(this.settings, 'gradientScale1', { min: 0, max: 5, step: 0.001 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uGradientScale1.value = ev.value
-        })
+    folder
+      .addBinding(this.settings, 'gradientScale1', { min: 0, max: 5, step: 0.001 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uGradientScale1.value = ev.value;
+      });
 
-        folder.addBinding(this.settings, 'gradientScale2', { min: 0, max: 5, step: 0.001 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uGradientScale2.value = ev.value
-        })
+    folder
+      .addBinding(this.settings, 'gradientScale2', { min: 0, max: 5, step: 0.001 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uGradientScale2.value = ev.value;
+      });
 
-        folder.addBinding(this.settings, 'gradientScale3', { min: 0, max: 5, step: 0.001 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uGradientScale3.value = ev.value
-        })
+    folder
+      .addBinding(this.settings, 'gradientScale3', { min: 0, max: 5, step: 0.001 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uGradientScale3.value = ev.value;
+      });
 
-        folder.addBinding(this.settings, 'gradientSpeed', { min: 0, max: 5, step: 0.1 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uGradientSpeed.value = ev.value
-        })
+    folder
+      .addBinding(this.settings, 'gradientSpeed', { min: 0, max: 5, step: 0.1 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uGradientSpeed.value = ev.value;
+      });
 
-        folder.addBinding(this.settings, 'colorInner', { view: 'color' }).on('change', (ev) => {
-            this.mesh.material.uniforms.uColorInner.value = new Color(ev.value).convertLinearToSRGB()
-        })
+    folder.addBinding(this.settings, 'colorInner', { view: 'color' }).on('change', (ev) => {
+      this.mesh.material.uniforms.uColorInner.value = new Color(ev.value).convertLinearToSRGB();
+    });
 
-        folder.addBinding(this.settings, 'colorMid', { view: 'color' }).on('change', (ev) => {
-            this.mesh.material.uniforms.uColorMid.value = new Color(ev.value).convertLinearToSRGB()
-        })
+    folder.addBinding(this.settings, 'colorMid', { view: 'color' }).on('change', (ev) => {
+      this.mesh.material.uniforms.uColorMid.value = new Color(ev.value).convertLinearToSRGB();
+    });
 
-        folder.addBinding(this.settings, 'colorOuter', { view: 'color' }).on('change', (ev) => {
-            this.mesh.material.uniforms.uColorOuter.value = new Color(ev.value).convertLinearToSRGB()
-        })
-    }
+    folder.addBinding(this.settings, 'colorOuter', { view: 'color' }).on('change', (ev) => {
+      this.mesh.material.uniforms.uColorOuter.value = new Color(ev.value).convertLinearToSRGB();
+    });
+  }
 
+  onResize() {
+    const { width, height, dpr } = WebGLStore.viewport;
+    const { uResolution } = this.mesh.material.uniforms;
+    uResolution.value.set(width * dpr, height * dpr, dpr);
+  }
 
-    onResize() {
-        const { width, height, dpr } = WebGLStore.viewport
-        const { uResolution } = this.mesh.material.uniforms
-        uResolution.value.set(width * dpr, height * dpr, dpr)
-    }
-
-    onTick({ time }) {
-        const { uTime } = this.mesh.material.uniforms
-        uTime.value = time
-    }
+  onTick({ time }) {
+    const { uTime } = this.mesh.material.uniforms;
+    uTime.value = time;
+  }
 }

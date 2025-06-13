@@ -1,6 +1,6 @@
-import gsap from "gsap";
+import gsap from 'gsap';
 
-import Emitter from "./Emitter";
+import Emitter from './Emitter';
 class Raf {
   constructor() {
     this.isPaused = false;
@@ -14,7 +14,11 @@ class Raf {
 
   onTick = (time, deltaTime) => {
     if (!this.isPaused) {
-      Emitter.emit("site:tick", { delta: deltaTime, time: time, rafDamp: gsap.ticker.deltaRatio(60) });
+      Emitter.emit('site:tick', {
+        delta: deltaTime,
+        time: time,
+        rafDamp: gsap.ticker.deltaRatio(60),
+      });
     }
   };
 }

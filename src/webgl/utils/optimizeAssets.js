@@ -3,25 +3,21 @@ import path from 'path';
 
 import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
-import * as FUNCTIONS from '@gltf-transform/functions'
+import * as FUNCTIONS from '@gltf-transform/functions';
 import draco3d from 'draco3dgltf';
 import { MeshoptSimplifier } from 'meshoptimizer';
 import { MeshoptEncoder } from 'meshoptimizer';
 
 // Configure I/O.
-const io = new NodeIO()
-    .registerExtensions(ALL_EXTENSIONS)
-    .registerDependencies({
-        'draco3d.decoder': await draco3d.createDecoderModule(), // Optional.
-        'draco3d.encoder': await draco3d.createEncoderModule(), // Optional.
-    });
+const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
+  'draco3d.decoder': await draco3d.createDecoderModule(), // Optional.
+  'draco3d.encoder': await draco3d.createEncoderModule(), // Optional.
+});
 
 async function optimizeGLTF(inputPath, outputPath) {
-
   const quality = 128;
-  
-  execSync(
-      `npx gltf-transform etc1s ${inputPath} ${outputPath} --quality ${quality}`);
+
+  execSync(`npx gltf-transform etc1s ${inputPath} ${outputPath} --quality ${quality}`);
 
   const document = await io.read(outputPath);
 
@@ -53,10 +49,10 @@ async function optimizeGLTF(inputPath, outputPath) {
   await io.write(outputPath, document);
 }
 
-const inputPath = path.resolve('src/assets/models/coin.glb')
-const outputPath = path.resolve('src/assets/models/coin-optimized.glb')
+const inputPath = path.resolve('src/assets/models/coin.glb');
+const outputPath = path.resolve('src/assets/models/coin-optimized.glb');
 
-console.log(inputPath)
-console.log(outputPath)
+console.log(inputPath);
+console.log(outputPath);
 
-optimizeGLTF(inputPath, outputPath)
+optimizeGLTF(inputPath, outputPath);

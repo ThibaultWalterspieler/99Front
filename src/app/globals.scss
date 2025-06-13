@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 :root {
   --background: #ffffff;
@@ -29,7 +29,7 @@ body {
   touch-action: none;
   user-select: none;
 
-  &>canvas {
+  & > canvas {
     -webkit-tap-highlight-color: transparent;
     touch-action: none;
     user-select: none;
@@ -44,7 +44,7 @@ body {
   max-height: 92vh;
   overflow-y: auto !important;
   &::-webkit-scrollbar {
-      display: none;
+    display: none;
   }
 }
 
@@ -68,20 +68,20 @@ body {
   border-radius: 2px;
 
   & .tp-btnCopy-copied {
-      display: none;
+    display: none;
   }
 
   & .tp-btnCopy-copy {
-      display: block;
+    display: block;
   }
 
   &.copied {
-      & .tp-btnCopy-copied {
-          display: block;
-      }
+    & .tp-btnCopy-copied {
+      display: block;
+    }
 
-      & .tp-btnCopy-copy {
-          display: none;
-      }
+    & .tp-btnCopy-copy {
+      display: none;
+    }
   }
 }

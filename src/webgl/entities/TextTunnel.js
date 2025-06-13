@@ -1,54 +1,62 @@
-import { AdditiveBlending, BackSide, Color, CylinderGeometry, Mesh, Object3D, RepeatWrapping, ShaderMaterial, Vector2 } from "three";
+import {
+  AdditiveBlending,
+  BackSide,
+  Color,
+  CylinderGeometry,
+  Mesh,
+  Object3D,
+  RepeatWrapping,
+  ShaderMaterial,
+  Vector2,
+} from 'three';
 
-import WebGLStore from "@99Stud/webgl/store/WebGLStore";
-import { sceneFolder } from "@99Stud/webgl/utils/debugger";
-import { getAsset } from "@99Stud/webgl/utils/manifest/assetsLoader";
+import WebGLStore from '@99Stud/webgl/store/WebGLStore';
+import { sceneFolder } from '@99Stud/webgl/utils/debugger';
+import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
 const PARAMS = {
-    uniforms: {
-        uIterations: { value: 10 },
-        uScale: { value: 1 },
-        uSpeed: { value: 1 },
-        tTexture: { value: null },
-        uColorTexture: { value: new Color(1, 1, 1) },
-        uAlpha: { value: 0.1 },
-        uCellScale: { value: 6.0 },
-        uTimeScale: { value: 30.0 },
-        uThresholdMin: { value: 0.92 },
-        uThresholdMax: { value: 1.0 },
-        uTransitionWidth: { value: 1.0 },
-        uAnimationOffset: { value: 1.0 }
-    }
-}
+  uniforms: {
+    uIterations: { value: 10 },
+    uScale: { value: 1 },
+    uSpeed: { value: 1 },
+    tTexture: { value: null },
+    uColorTexture: { value: new Color(1, 1, 1) },
+    uAlpha: { value: 0.1 },
+    uCellScale: { value: 6.0 },
+    uTimeScale: { value: 30.0 },
+    uThresholdMin: { value: 0.92 },
+    uThresholdMax: { value: 1.0 },
+    uTransitionWidth: { value: 1.0 },
+    uAnimationOffset: { value: 1.0 },
+  },
+};
 
-const geometry = new CylinderGeometry(8, 8, 20, 64)
+const geometry = new CylinderGeometry(8, 8, 20, 64);
 
 export default class TextureTunnel extends Object3D {
-    constructor(options) {
-        super(options)
-        this.name = options?.name ? `TextureTunnel-${options.name}` : `TextureTunnel`
-        this.settings = { ...options, ...PARAMS }
+  constructor(options) {
+    super(options);
+    this.name = options?.name ? `TextureTunnel-${options.name}` : `TextureTunnel`;
+    this.settings = { ...options, ...PARAMS };
 
-        this.init()
-        this.addDebug()
-    }
+    this.init();
+    this.addDebug();
+  }
 
+  init() {
+    const texture = getAsset('tex-99stud');
+    texture.wrapS = RepeatWrapping;
+    texture.wrapT = RepeatWrapping;
+    texture.flipY = true;
 
-    init() {
-
-        const texture = getAsset('tex-99stud')
-        texture.wrapS = RepeatWrapping
-        texture.wrapT = RepeatWrapping
-        texture.flipY = true
-
-        const material = new ShaderMaterial({
-            uniforms: {
-                ...this.settings.uniforms,
-                uTime: { value: 0 },
-                uResolution: { value: new Vector2(WebGLStore.viewport.width, WebGLStore.viewport.height) },
-                tTexture: { value: texture },
-            },
-            vertexShader: `
+    const material = new ShaderMaterial({
+      uniforms: {
+        ...this.settings.uniforms,
+        uTime: { value: 0 },
+        uResolution: { value: new Vector2(WebGLStore.viewport.width, WebGLStore.viewport.height) },
+        tTexture: { value: texture },
+      },
+      vertexShader: `
                 varying vec2 vUv;
 
                 void main() {
@@ -56,7 +64,7 @@ export default class TextureTunnel extends Object3D {
                     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                 }
             `,
-            fragmentShader: `
+      fragmentShader: `
                 uniform float uTime;
                 uniform vec2 uResolution;
                 uniform float uIterations;
@@ -227,59 +235,86 @@ export default class TextureTunnel extends Object3D {
                     gl_FragColor = vec4(diffuse.rgb, diffuse.a);
                 }
             `,
-            transparent: true,
-            blending: AdditiveBlending,
-            side: BackSide
-        })
+      transparent: true,
+      blending: AdditiveBlending,
+      side: BackSide,
+    });
 
+    this.mesh = new Mesh(geometry, material);
+    this.mesh.position.set(0, 0, 0);
+    this.add(this.mesh);
 
-        this.mesh = new Mesh(geometry, material)
-        this.mesh.position.set(0, 0, 0)
-        this.add(this.mesh)
+    texture.dispose();
+  }
 
-        texture.dispose()
-    }
+  onTick({ time }) {
+    const { uTime } = this.mesh.material.uniforms;
+    uTime.value = time * 0.0075;
+  }
 
-    onTick({ time }) {
-        const { uTime } = this.mesh.material.uniforms
-        uTime.value = time * 0.0075
-    }
+  onResize() {
+    const { uResolution } = this.mesh.material.uniforms;
+    uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
+  }
 
-    onResize() {
-        const { uResolution } = this.mesh.material.uniforms
-        uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height)
-    }
+  addDebug() {
+    if (!sceneFolder) return;
+    const {
+      uCellScale,
+      uTimeScale,
+      uThresholdMin,
+      uThresholdMax,
+      uTransitionWidth,
+      uAnimationOffset,
+    } = this.settings.uniforms;
 
-    addDebug() {
-        if (!sceneFolder) return
-        const { uCellScale, uTimeScale, uThresholdMin, uThresholdMax, uTransitionWidth, uAnimationOffset } = this.settings.uniforms
+    const folder = sceneFolder.addFolder({ title: 'TextTunnel' });
 
-        const folder = sceneFolder.addFolder({ title: 'TextTunnel' })
+    folder
+      .addBinding(uCellScale, 'value', { label: 'Cell Scale', min: 0, max: 10, step: 0.01 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uCellScale.value = ev.value;
+      });
 
-        folder.addBinding(uCellScale, 'value', { label: 'Cell Scale', min: 0, max: 10, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uCellScale.value = ev.value
-        })
+    folder
+      .addBinding(uTimeScale, 'value', { label: 'Time Scale', min: 0, max: 500, step: 1.0 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uTimeScale.value = ev.value;
+      });
 
-        folder.addBinding(uTimeScale, 'value', { label: 'Time Scale', min: 0, max: 500, step: 1.0 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uTimeScale.value = ev.value
-        })
+    folder
+      .addBinding(uThresholdMin, 'value', { label: 'Threshold Min', min: 0, max: 1, step: 0.01 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uThresholdMin.value = ev.value;
+      });
 
-        folder.addBinding(uThresholdMin, 'value', { label: 'Threshold Min', min: 0, max: 1, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uThresholdMin.value = ev.value
-        })
+    folder
+      .addBinding(uThresholdMax, 'value', { label: 'Threshold Max', min: 0, max: 1, step: 0.01 })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uThresholdMax.value = ev.value;
+      });
 
-        folder.addBinding(uThresholdMax, 'value', { label: 'Threshold Max', min: 0, max: 1, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uThresholdMax.value = ev.value
-        })
+    folder
+      .addBinding(uTransitionWidth, 'value', {
+        label: 'Transition Width',
+        min: 0,
+        max: 1,
+        step: 0.01,
+      })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uTransitionWidth.value = ev.value;
+      });
 
-        folder.addBinding(uTransitionWidth, 'value', { label: 'Transition Width', min: 0, max: 1, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uTransitionWidth.value = ev.value
-        })
-
-        folder.addBinding(uAnimationOffset, 'value', { label: 'Animation Offset', min: 0, max: 1, step: 0.01 }).on('change', (ev) => {
-            this.mesh.material.uniforms.uAnimationOffset.value = ev.value
-        })
-
-    }
-    dispose() { }
+    folder
+      .addBinding(uAnimationOffset, 'value', {
+        label: 'Animation Offset',
+        min: 0,
+        max: 1,
+        step: 0.01,
+      })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uAnimationOffset.value = ev.value;
+      });
+  }
+  dispose() {}
 }

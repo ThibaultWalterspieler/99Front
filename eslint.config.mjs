@@ -1,8 +1,8 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
+import { dirname } from 'path';
+import { fileURLToPath } from 'url';
 
-import { FlatCompat } from "@eslint/eslintrc";
-import eslintConfigPrettier from "eslint-config-prettier/flat";
+import { FlatCompat } from '@eslint/eslintrc';
+import eslintConfigPrettier from 'eslint-config-prettier/flat';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -12,57 +12,57 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...compat.extends('next/core-web-vitals', 'next/typescript'),
   eslintConfigPrettier,
   {
-    ignores: ["**/public/**"],
+    ignores: ['**/public/**'],
   },
   {
     rules: {
-      "@typescript-eslint/no-unused-vars": [
-        "error",
+      '@typescript-eslint/no-unused-vars': [
+        'error',
         {
-          varsIgnorePattern: "^_",
-          argsIgnorePattern: "^_",
+          varsIgnorePattern: '^_',
+          argsIgnorePattern: '^_',
         },
       ],
     },
   },
   {
     rules: {
-      "react/jsx-sort-props": "warn",
+      'react/jsx-sort-props': 'warn',
     },
   },
   {
     rules: {
-      "import/order": [
-        "error",
+      'import/order': [
+        'error',
         {
           groups: [
-            "builtin",
-            "external",
-            "internal",
-            ["parent", "sibling"],
-            "object",
-            "type",
-            "index",
+            'builtin',
+            'external',
+            'internal',
+            ['parent', 'sibling'],
+            'object',
+            'type',
+            'index',
           ],
           pathGroups: [
             {
-              pattern: "#components/**",
-              group: "external",
-              position: "after",
+              pattern: '#components/**',
+              group: 'external',
+              position: 'after',
             },
             {
-              pattern: "@lib/**",
-              group: "external",
-              position: "after",
+              pattern: '@lib/**',
+              group: 'external',
+              position: 'after',
             },
           ],
           distinctGroup: true,
-          "newlines-between": "always",
+          'newlines-between': 'always',
           alphabetize: {
-            order: "asc",
+            order: 'asc',
             caseInsensitive: true,
           },
         },

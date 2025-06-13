@@ -12,22 +12,22 @@ class Resize {
   }
 
   init() {
-    this.onResize()
-    window.addEventListener('resize', this.onResize)
+    this.onResize();
+    window.addEventListener('resize', this.onResize);
   }
 
   onResize = () => {
     // Only run on client side
-    if (typeof window === 'undefined') return
+    if (typeof window === 'undefined') return;
 
     const { viewport } = WebGLStore;
 
-    viewport.width = window.innerWidth
-    viewport.height = window.innerHeight
-    viewport.aspect = window.innerWidth / window.innerHeight
-    viewport.dpr = gsap.utils.clamp(1, 2, window.devicePixelRatio)
+    viewport.width = window.innerWidth;
+    viewport.height = window.innerHeight;
+    viewport.aspect = window.innerWidth / window.innerHeight;
+    viewport.dpr = gsap.utils.clamp(1, 2, window.devicePixelRatio);
 
-    Emitter.emit('site:resize', {})
+    Emitter.emit('site:resize', {});
   };
 }
 
