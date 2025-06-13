@@ -1,5 +1,6 @@
 import { Analytics } from '@vercel/analytics/next';
 import { Geist, Geist_Mono } from 'next/font/google';
+import localFont from 'next/font/local';
 import { FC, PropsWithChildren } from 'react';
 
 import type { Metadata } from 'next';
@@ -16,6 +17,11 @@ const geistMono = Geist_Mono({
   subsets: ['latin'],
 });
 
+const ppSupplySans = localFont({
+  src: 'fonts/PPSupplySans-Regular.woff2',
+  variable: '--font-supply-sans',
+});
+
 export const metadata: Metadata = {
   title: '99stud - Creative Independent Studio',
   description: '99stud is a creative independent studio that makes things.',
@@ -24,7 +30,7 @@ export const metadata: Metadata = {
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+      <body className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased`}>
         {children}
         <Analytics />
       </body>
