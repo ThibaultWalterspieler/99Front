@@ -17,7 +17,7 @@ export default class WebGLApp {
     Camera.init();
     Scene.init();
 
-    isDev && this.setupPerfs();
+    if (isDev) this.setupPerfs();
 
     this.setupEvents();
     this.onResize();
