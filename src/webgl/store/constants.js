@@ -10,7 +10,7 @@ export const COIN_PARAMS = {
   metalness: 0.99,
   faces: ['recto', 'verso'],
   position: {
-    x: WebGLStore.deviceSettings.isMobile ? 0.025 : 0,
+    x: 0,
     y: 0,
     z: 0,
   },

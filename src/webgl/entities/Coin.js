@@ -27,9 +27,10 @@ export default class Coin extends Object3D {
 
     this.baseScale = 5;
     this.baseRotation = 0;
-    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 725) : this.baseScale;
+    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 650) : this.baseScale;
 
     this.rotation.set(degToRad(90), degToRad(90), degToRad(90));
+    this.position.set(!WebGLStore.deviceSettings.isMobile ? 0.05 : 0, 0, 0);
     this.scale.setScalar(0);
 
     this.hasTransitionedIn = false;
@@ -255,7 +256,7 @@ export default class Coin extends Object3D {
     });
   };
 
-  onDrag = ({ distance, delta }) => {
+  onDrag = ({ distance }) => {
     const mappedRotation = gsap.utils.mapRange(-1, 1, -60, 60, distance.x * this.settings.dragSpeed);
     const targetRotation = Math.max(
       Math.min(degToRad(mappedRotation), degToRad(60)),

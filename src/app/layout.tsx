@@ -31,7 +31,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased overflow-hidden`}
       >
         {children}
         <Analytics />
