@@ -102,6 +102,18 @@ export default class Background extends Object3D {
                     return sub.x * sub.y / sub.z + newMin;
                 }
 
+                vec4 coverTexture(sampler2D tex, vec2 imgSize, vec2 ouv, vec2 res) {
+                    vec2 s = res;
+                    vec2 i = imgSize;
+                    float rs = s.x / s.y;
+                    float ri = i.x / i.y;
+                    vec2 new = rs < ri ? vec2(i.x * s.y / i.y, s.y) : vec2(s.x, i.y * s.x / i.x);
+                    vec2 offset = (rs < ri ? vec2((new.x - s.x) / 2.0, 0.0) : vec2(0.0, (new.y - s.y) / 2.0)) / new;
+                    vec2 uv = ouv * s / new + offset;
+
+                    return texture2D(tex, uv);
+                }
+
 
                 float SDF_rounded_box( in vec2 p, in vec2 b, in vec4 r )
                 {
@@ -202,7 +214,7 @@ export default class Background extends Object3D {
                     float scaleRect = range(snoise(vec3(uv * 2., uTime * .2)), 0., 1., 1., 1.2);
 
                     // Sample base gradient with higher precision sampling
-                    vec3 col = texture(tGrad, st).rgb;
+                    vec3 col = coverTexture(tGrad, vec2(1920., 1080.), st, uResolution.xy).rgb;
                     
                     // Apply blur more carefully to preserve gradient smoothness
                     vec4 blurred = blur(tGrad, st, vec2(1.0, 1.0) * uBlurriness);

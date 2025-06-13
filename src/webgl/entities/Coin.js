@@ -386,8 +386,9 @@ export default class Coin extends Object3D {
   }
 
   onResize() {
-    this.uniforms.uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
-
+    const { width, height, dpr } = WebGLStore.viewport;
+    const { uResolution } = this.uniforms;
+    uResolution.value.set(width * dpr, height * dpr, dpr);
 
     if (!WebGLStore.viewport.breakpoints.md) {
       this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);

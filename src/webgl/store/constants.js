@@ -30,7 +30,7 @@ export const COIN_PARAMS = {
   scanlineEnabled: false,
   dragEnabled: true,
   dragAxis: 'xy',
-  dragSpeed: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 3 : 1,
+  dragSpeed: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 2 : 1,
   dragDamping: WebGLStore.deviceSettings.isMobile ? 0.75 : 0.05,
 };
 
