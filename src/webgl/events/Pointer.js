@@ -23,7 +23,8 @@ class Pointer {
       touchStartPos: { x: 0, y: 0 },
       touchIdentifier: null,
       isTouch: false,
-      preventScroll: true,
+      preventScroll: false,
+      isDragging: false,
     };
 
     this.init();
@@ -60,12 +61,18 @@ class Pointer {
       y: touch.clientY
     };
 
-    // Update position immediately for touch start
-    this.updatePosition(touch.clientX, touch.clientY);
+    // Check if the touch target is a link or button
+    const target = e.target;
+    const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' ||
+      target.closest('a') || target.closest('button');
 
-    if (state.preventScroll) {
+    // Only prevent default if we're not touching an interactive element
+    if (state.preventScroll && !isInteractive) {
       e.preventDefault();
     }
+
+    // Update position immediately for touch start
+    this.updatePosition(touch.clientX, touch.clientY);
 
     Emitter.emit('site:pointer:down', {
       e,
@@ -75,7 +82,8 @@ class Pointer {
         mappedPos: this.state.mapped,
         isTouch: true,
         touchStartTime: state.touchStartTime,
-        touchStartPos: state.touchStartPos
+        touchStartPos: state.touchStartPos,
+        isInteractive
       },
     });
   };
@@ -87,8 +95,15 @@ class Pointer {
     // Update position
     this.updatePosition(touch.clientX, touch.clientY);
 
-    if (this.state.preventScroll) {
+    // Calculate distance moved
+    const dx = touch.clientX - this.state.touchStartPos.x;
+    const dy = touch.clientY - this.state.touchStartPos.y;
+    const distance = Math.sqrt(dx * dx + dy * dy);
+
+    // Only prevent default if we're dragging (moved more than 5px)
+    if (this.state.preventScroll && distance > 5) {
       e.preventDefault();
+      this.state.isDragging = true;
     }
 
     Emitter.emit('site:pointer:move', {
@@ -97,7 +112,8 @@ class Pointer {
         pos: this.state.target,
         normalizedPos: this.state.normalized,
         mappedPos: this.state.mapped,
-        isTouch: true
+        isTouch: true,
+        isDragging: this.state.isDragging
       },
     });
   };
@@ -107,12 +123,14 @@ class Pointer {
     state.isPressing = false;
     state.isTouch = false;
     state.touchIdentifier = null;
+    state.isDragging = false;
 
     Emitter.emit('site:pointer:up', {
       e,
       state: {
         isTouch: true,
-        touchDuration: Date.now() - state.touchStartTime
+        touchDuration: Date.now() - state.touchStartTime,
+        wasDragging: state.isDragging
       }
     });
   };

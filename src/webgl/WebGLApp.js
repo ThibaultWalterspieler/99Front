@@ -4,6 +4,7 @@ import Camera from '@99Stud/webgl/components/Camera';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
 import { Emitter } from '@99Stud/webgl/events';
+import { DEBUG_ENABLED } from '@99Stud/webgl/store/constants';
 
 const isBrowser = typeof window !== 'undefined';
 const isDev = process.env.NODE_ENV === 'development';
@@ -17,7 +18,7 @@ export default class WebGLApp {
     Camera.init();
     Scene.init();
 
-    if (isDev) this.setupPerfs();
+    if (isDev && DEBUG_ENABLED) this.setupPerfs();
 
     this.setupEvents();
     this.onResize();

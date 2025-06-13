@@ -27,7 +27,7 @@ export default class Coin extends Object3D {
 
     this.baseScale = 5;
     this.baseRotation = 0;
-    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 800) : this.baseScale;
+    this.responsiveScale = !WebGLStore.viewport.breakpoints.md ? this.baseScale * (WebGLStore.viewport.width / 725) : this.baseScale;
 
     this.rotation.set(degToRad(90), degToRad(90), degToRad(90));
     this.scale.setScalar(0);
@@ -193,7 +193,6 @@ export default class Coin extends Object3D {
 
     tlIn.eventCallback('onComplete', () => {
       this.hasTransitionedIn = true;
-      console.log('transition in complete');
     })
   }
 
@@ -241,7 +240,7 @@ export default class Coin extends Object3D {
   // - Based on the direction lerp the values accordingly in order to prevent multiple 360° rotations
 
   onDragStart = async () => {
-    const targetScale = this.settings.scale * 1.05;
+    const targetScale = WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? this.settings.scale * 1.2 : this.settings.scale * 1.05;
 
     this.initialRotationY = this.coin.rotation.y;
 
@@ -397,6 +396,8 @@ export default class Coin extends Object3D {
         this.scale.setScalar(this.responsiveScale);
       }
     }
+
+    console.log(WebGLStore.deviceSettings.isMobile);
   }
 
   dispose() {

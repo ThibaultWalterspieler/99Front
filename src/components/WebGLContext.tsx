@@ -47,5 +47,5 @@ export const WebGLContext: React.FC<WebGLContextProps> = () => {
     }
   }, [width, height]);
 
-  return <div className="webgl-wrapper fixed w-full h-full inset-0 z-0" ref={webglWrapperRef} />;
+  return <div className="webgl-wrapper fixed w-full h-full inset-0 z-0 pointer-events-none touch-none overflow-hidden" ref={webglWrapperRef} />;
 };

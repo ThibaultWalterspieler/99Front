@@ -4,8 +4,6 @@ import { degToRad } from 'three/src/math/MathUtils.js';
 import Camera from '@99Stud/webgl/components/Camera';
 import Background from '@99Stud/webgl/entities/Background';
 import Coin from '@99Stud/webgl/entities/Coin';
-import TextureTunnel from '@99Stud/webgl/entities/TextTunnel';
-import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { sceneFolder } from '@99Stud/webgl/utils/debugger';
 import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
@@ -34,10 +32,11 @@ class Stage extends Scene {
     this.coin = new Coin();
     this.add(this.coin);
 
-    if (!WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md) {
-      this.tunnel = new TextureTunnel();
-      this.add(this.tunnel);
-    }
+    // TODO: fix textures
+    // if (!WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md) {
+    //   // this.tunnel = new TextureTunnel();
+    //   // this.add(this.tunnel);
+    // }
 
     this.background = new Background();
     this.add(this.background);

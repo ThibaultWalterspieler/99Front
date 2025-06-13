@@ -22,10 +22,10 @@ const links = [
 
 export default function Home() {
   return (
-    <div className="relative w-full h-screen overflow-hidden">
+    <div className="relative w-full h-screen overflow-hidden pointer-events-auto">
       <WebGLContext />
 
-      <div className="link-wrapper absolute top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px]">
+      <div className="link-wrapper absolute z-50 top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
         {links.map((link) => (
           <ExternalLink href={link.href} key={link.href}>{link.label}</ExternalLink>
         ))}
