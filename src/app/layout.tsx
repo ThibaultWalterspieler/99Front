@@ -30,7 +30,9 @@ export const metadata: Metadata = {
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased`}
+      >
         {children}
         <Analytics />
       </body>
