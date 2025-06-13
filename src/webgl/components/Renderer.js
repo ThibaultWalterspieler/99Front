@@ -5,7 +5,6 @@ import { GlobalRaf } from '@99Stud/webgl/events';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import tweak, { rendererFolder } from '@99Stud/webgl/utils/debugger';
 
-
 class Renderer extends WebGLRenderer {
   constructor() {
     super({
@@ -37,6 +36,7 @@ class Renderer extends WebGLRenderer {
   }
 
   addDebug() {
+    if (!rendererFolder) return
     rendererFolder.addBinding(this.info.memory, 'geometries', { label: 'geometries', readonly: true })
     rendererFolder.addBinding(this.info.memory, 'textures', { readonly: true })
     rendererFolder.addBinding(GlobalRaf, "isPaused", { label: 'Pause Raf' });

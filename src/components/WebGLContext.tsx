@@ -8,7 +8,6 @@ import { loadManifest } from '@99Stud/webgl/utils/manifest/assetsLoader'
 import { manifest } from '@99Stud/webgl/utils/manifest/preloadManifest'
 import WebGLApp from '@99Stud/webgl/WebGLApp'
 
-
 interface WebGLContextProps {
     className?: string
 }

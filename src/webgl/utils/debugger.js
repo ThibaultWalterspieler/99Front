@@ -2,6 +2,8 @@
 import gsap from "gsap";
 import { Pane } from "tweakpane";
 
+const isDev = process.env.NODE_ENV === 'development'
+
 const SAFE_PADDING = 8
 const state = {
     pos: {
@@ -14,28 +16,40 @@ const state = {
     pressing: false
 }
 
-const tweak = new Pane();
-tweak.hidden = false
-export const tweakFolder = tweak.addFolder({ title: 'Debugger' })
-const tabs = tweakFolder.addTab({
-    pages: [
-        { title: 'Renderer' },
-        { title: 'Scene' },
-        { title: 'PostFX' },
-    ],
-});
-export const rendererFolder = tabs.pages[0]
-export const sceneFolder = tabs.pages[1]
-export const postFxFolder = tabs.pages[2]
+let tweak = null;
+let tweakFolder = null;
+export let rendererFolder = null;
+export let sceneFolder = null;
+export let postFxFolder = null;
+let tweakContainer = null;
+let tweakWrapper = null;
+let tweakDragger = null;
 
-const tweakContainer = tweak.containerElem_
-const tweakWrapper = document.createElement('div')
-tweakWrapper.classList.add('tp-wrapper')
-tweakWrapper.style.zIndex = '1000'
-const tweakDragger = tweakFolder.element.children[0]
+if (isDev) {
+    tweak = new Pane();
+    tweak.hidden = false;
+    tweakFolder = tweak.addFolder({ title: 'Debugger' });
+    const tabs = tweakFolder.addTab({
+        pages: [
+            { title: 'Renderer' },
+            { title: 'Scene' },
+            { title: 'PostFX' },
+        ],
+    });
+    rendererFolder = tabs.pages[0];
+    sceneFolder = tabs.pages[1];
+    postFxFolder = tabs.pages[2];
+
+    tweakContainer = tweak.containerElem_;
+    tweakWrapper = document.createElement('div');
+    tweakWrapper.classList.add('tp-wrapper');
+    tweakWrapper.style.zIndex = '1000';
+    tweakDragger = tweakFolder.element.children[0];
+}
 
 export function initDebugger(wrapper) {
     if (!wrapper) return
+    console.log('initDebugger', wrapper)
     tweakWrapper.appendChild(tweakContainer)
     wrapper.appendChild(tweakWrapper)
 }
@@ -87,8 +101,7 @@ function onDragUp() {
     tweakDragger.classList.remove('dragging')
 }
 
-// Only initialize event listeners on client side
-if (typeof window !== 'undefined') {
+if (typeof window !== 'undefined' && isDev) {
     tweakDragger.addEventListener('mousedown', onDragDown)
     tweakDragger.addEventListener('click', (e) => {
         e.preventDefault();

@@ -4,9 +4,9 @@ import Camera from '@99Stud/webgl/components/Camera'
 import Renderer from '@99Stud/webgl/components/Renderer'
 import Scene from '@99Stud/webgl/components/Scene'
 import { Emitter } from '@99Stud/webgl/events'
-import { initDebugger } from '@99Stud/webgl/utils/debugger'
 
 const isBrowser = typeof window !== 'undefined'
+const isDev = process.env.NODE_ENV === 'development'
 
 export default class WebGLApp {
     init(wrapper) {
@@ -17,8 +17,7 @@ export default class WebGLApp {
         Camera.init()
         Scene.init()
 
-        this.setupPerfs()
-        initDebugger(wrapper)
+        isDev && this.setupPerfs()
 
         this.setupEvents()
         this.onResize()
@@ -29,7 +28,7 @@ export default class WebGLApp {
             anchorX: 'left',
             anchorY: 'top',
             domElement: this.wrapper,
-            renderer: Renderer
+            renderer: Renderer,
         })
     }
 

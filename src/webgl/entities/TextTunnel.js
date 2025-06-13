@@ -251,6 +251,7 @@ export default class TextureTunnel extends Object3D {
     }
 
     addDebug() {
+        if (!sceneFolder) return
         const { uCellScale, uTimeScale, uThresholdMin, uThresholdMax, uTransitionWidth, uAnimationOffset } = this.settings.uniforms
 
         const folder = sceneFolder.addFolder({ title: 'TextTunnel' })

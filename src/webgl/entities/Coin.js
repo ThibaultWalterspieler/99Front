@@ -244,6 +244,7 @@ export default class Coin extends Object3D {
     }
 
     addDebug() {
+        if (!sceneFolder) return
         const coinFolder = sceneFolder.addFolder({ title: 'Coin' })
         coinFolder.addBinding(COIN_PARAMS, 'color').on('change', (ev) => { this.material.color.set(ev.value) })
         coinFolder.addBinding(COIN_PARAMS, 'roughness').on('change', (ev) => { this.material.roughness = ev.value })

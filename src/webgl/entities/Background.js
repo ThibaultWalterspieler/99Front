@@ -246,6 +246,7 @@ export default class Background extends Object3D {
     }
 
     addDebug() {
+        if (!sceneFolder) return
         const folder = sceneFolder.addFolder({ title: 'Background' })
 
         folder.addBinding(this.settings, 'blurriness', { min: 0, max: 1, step: 0.01 }).on('change', (ev) => {

@@ -51,6 +51,7 @@ class Stage extends Scene {
   }
 
   addDebug() {
+    if (!sceneFolder) return
     const envFolder = sceneFolder.addFolder({ title: 'Environment' })
     envFolder.addBinding(PARAMS, 'envIntensity').on('change', (ev) => { this.environmentIntensity = ev.value })
     envFolder.addBinding(PARAMS, 'envRotation').on('change', (ev) => { this.environmentRotation.set(degToRad(ev.value.x), degToRad(ev.value.y), degToRad(ev.value.z)) })
