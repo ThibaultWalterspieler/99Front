@@ -180,7 +180,7 @@ export default class Coin extends Object3D {
       y: this.responsiveScale,
       z: this.responsiveScale,
       duration: duration,
-      ease: 'elastic.out(1, 0.98)',
+      ease: 'elastic.out(1, 0.9)',
     });
 
     tlIn.to(this.rotation, {
@@ -188,7 +188,7 @@ export default class Coin extends Object3D {
       y: degToRad(this.baseRotation),
       z: degToRad(this.baseRotation),
       duration: duration,
-      ease: 'elastic.out(1, 0.98)',
+      ease: 'elastic.out(1, 0.9)',
     }, '<');
 
     tlIn.eventCallback('onComplete', () => {
@@ -376,7 +376,11 @@ export default class Coin extends Object3D {
       this.coin.rotation.x += GlobalPointer.state.velocity.y * (0.01 * rafDamp);
     }
 
-    this.coin.position.y = Math.sin(time * 1.2) * 0.005;
+    if (WebGLStore.deviceSettings.isMobile) {
+      this.coin.position.y = Math.sin(time * 1.2) * 0.01;
+    } else {
+      this.coin.position.y = Math.sin(time * 1.2) * 0.005;
+    }
 
     this.uniforms.uTime.value += 0.01 * rafDamp;
   }
@@ -396,8 +400,6 @@ export default class Coin extends Object3D {
         this.scale.setScalar(this.responsiveScale);
       }
     }
-
-    console.log(WebGLStore.deviceSettings.isMobile);
   }
 
   dispose() {
