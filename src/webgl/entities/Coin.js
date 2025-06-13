@@ -25,8 +25,14 @@ export default class Coin extends Object3D {
     this.name = options?.name ? `Coin-${options.name}` : `Coin`;
     this.settings = { ...COIN_PARAMS, ...options?.settings };
 
-    this.responsiveScale = 5;
-    this.scale.setScalar(this.responsiveScale);
+    this.baseScale = 5;
+    this.baseRotation = 0;
+    this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
+
+    this.rotation.set(degToRad(90), degToRad(90), degToRad(90));
+    this.scale.setScalar(0);
+
+    this.hasTransitionedIn = false;
 
     this.init();
     this.setupTweens();
@@ -35,7 +41,7 @@ export default class Coin extends Object3D {
     this.onResize();
   }
 
-  init() {
+  async init() {
     const { scene } = getAsset('coin-optimized');
 
     const metallicMap = getAsset('ktx2-metalness');
@@ -161,6 +167,34 @@ export default class Coin extends Object3D {
       degToRad(this.settings.savedRotations.recto.z),
     );
     this.add(this.coin);
+
+    await this.transitionIn();
+  }
+
+  async transitionIn() {
+    const tlIn = gsap.timeline()
+    const duration = 2;
+
+    tlIn.to(this.scale, {
+      x: this.responsiveScale,
+      y: this.responsiveScale,
+      z: this.responsiveScale,
+      duration: duration,
+      ease: 'elastic.out(1, 0.98)',
+    });
+
+    tlIn.to(this.rotation, {
+      x: degToRad(this.baseRotation),
+      y: degToRad(this.baseRotation),
+      z: degToRad(this.baseRotation),
+      duration: duration,
+      ease: 'elastic.out(1, 0.98)',
+    }, '<');
+
+    tlIn.eventCallback('onComplete', () => {
+      this.hasTransitionedIn = true;
+      console.log('transition in complete');
+    })
   }
 
   setupTweens() {
@@ -351,10 +385,16 @@ export default class Coin extends Object3D {
   onResize() {
     this.uniforms.uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
 
+    this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
+
     if (!WebGLStore.viewport.breakpoints.md) {
-      this.scale.setScalar(this.responsiveScale * (WebGLStore.viewport.width / 800));
+      if (this.hasTransitionedIn) {
+        this.scale.setScalar(this.responsiveScale);
+      }
     } else {
-      this.scale.setScalar(this.responsiveScale);
+      if (this.hasTransitionedIn) {
+        this.scale.setScalar(this.responsiveScale);
+      }
     }
   }
 
