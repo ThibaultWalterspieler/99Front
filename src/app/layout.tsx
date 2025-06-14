@@ -23,8 +23,16 @@ const ppSupplySans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: '99stud - Creative Independent Studio',
-  description: '99stud is a creative independent studio that makes things.',
+  title: '99stud | Creative Independent Studio',
+  description: '99stud is a creative independent studio that makes things happen.',
+  creator: '99stud',
+  authors: [{ name: '99stud', url: 'https://99stud.com' }],
+  publisher: '99stud',
+  openGraph: {
+    type: 'website',
+    title: '99stud | Creative Independent Studio',
+    description: '99stud is a creative independent studio that makes things happen.',
+  },
 };
 
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
