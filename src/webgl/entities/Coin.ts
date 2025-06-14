@@ -1,14 +1,5 @@
 import gsap from 'gsap';
-import {
-  AdditiveBlending,
-  Color,
-  FrontSide,
-  Mesh,
-  MeshStandardMaterial,
-  Object3D,
-  Vector2,
-  Vector3,
-} from 'three';
+import { Color, FrontSide, Mesh, MeshStandardMaterial, Object3D, Vector2, Vector3 } from 'three';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
 import { CustomDrag } from '@99Stud/webgl/components/CustomDrag';
@@ -18,9 +9,52 @@ import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { sceneFolder } from '@99Stud/webgl/utils/debugger';
 import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
+interface CoinOptions {
+  name?: string;
+  settings?: Partial<typeof COIN_PARAMS> & {
+    faces?: string[];
+    scale?: number;
+    scanlineEnabled?: boolean;
+    dragEnabled?: boolean;
+    dragAxis?: string | 'xy' | 'x' | 'y';
+    dragSpeed?: number;
+    dragDamping?: number;
+    flipThreshold?: number;
+    savedRotations?: {
+      y: number;
+      recto: { x: number; z: number };
+      verso: { x: number; z: number };
+      [key: string]: unknown;
+    };
+    position?: { x: number; y: number; z: number };
+    debugPointer?: boolean;
+  };
+}
+
+// Fallback type for sceneFolder to avoid never type error
+const sceneFolderTyped: unknown = sceneFolder;
+
 export default class Coin extends Object3D {
-  constructor(options) {
-    super(options);
+  name: string;
+  settings: typeof COIN_PARAMS & CoinOptions['settings'];
+  baseScale: number;
+  baseRotation: number;
+  responsiveScale: number;
+  hasTransitionedIn: boolean;
+  coin!: Mesh;
+  face!: string;
+  uniforms!: {
+    uTime: { value: number };
+    uResolution: { value: Vector2 };
+  };
+  material!: MeshStandardMaterial;
+  dragRotationTween!: gsap.core.Tween;
+  returnRotationTween!: gsap.core.Tween;
+  drag?: CustomDrag;
+  initialRotationY!: number;
+
+  constructor(options: CoinOptions = {}) {
+    super();
 
     this.name = options?.name ? `Coin-${options.name}` : `Coin`;
     this.settings = { ...COIN_PARAMS, ...options?.settings };
@@ -38,14 +72,14 @@ export default class Coin extends Object3D {
     this.hasTransitionedIn = false;
 
     this.init();
-    this.setupTweens();
     this.setupDrag();
     this.addDebug();
     this.onResize();
   }
 
   async init() {
-    const { scene } = getAsset('coin-optimized');
+    const asset = getAsset('coin-optimized');
+    const { scene } = asset;
 
     const metallicMap = getAsset('ktx2-metalness');
     const normalMap = getAsset('tex-normal');
@@ -54,13 +88,16 @@ export default class Coin extends Object3D {
     const aoMap = getAsset('ktx2-aomap');
 
     this.coin = scene.children.find(
-      (child) => child instanceof Mesh && child.name === 'Rabbit_coin',
-    );
-    this.coin.geometry.center();
+      (child: Object3D) => child instanceof Mesh && child.name === 'Rabbit_coin',
+    ) as Mesh;
+
+    if (!this.coin) {
+      throw new Error("Coin mesh 'Rabbit_coin' not found in coin-optimized asset.");
+    }
 
     this.coin.position.set(0, 0, 0);
     this.coin.scale.setScalar(this.settings.scale);
-    this.face = this.settings.faces[0];
+    this.face = this.settings.faces![0];
 
     this.uniforms = {
       uTime: { value: 0 },
@@ -82,26 +119,24 @@ export default class Coin extends Object3D {
     });
 
     if (this.settings.scanlineEnabled) {
-      this.material.onBeforeCompile = (shader) => {
-        shader.uniforms = Object.assign(shader.uniforms, this.uniforms);
-
-        shader.vertexShader = shader.vertexShader.replace(
+      this.material.onBeforeCompile = (shader: unknown) => {
+        const s = shader as { uniforms: unknown; vertexShader: string; fragmentShader: string };
+        s.uniforms = Object.assign(s.uniforms as Record<string, unknown>, this.uniforms);
+        s.vertexShader = s.vertexShader.replace(
           '#include <common>',
           `
                 #include <common>
                 varying vec2 vUv;
                 `,
         );
-
-        shader.vertexShader = shader.vertexShader.replace(
+        s.vertexShader = s.vertexShader.replace(
           '#include <project_vertex>',
           `
                 #include <project_vertex>
                 vUv = uv;
                 `,
         );
-
-        shader.fragmentShader = shader.fragmentShader.replace(
+        s.fragmentShader = s.fragmentShader.replace(
           '#include <common>',
           `
                 #include <common>
@@ -117,8 +152,7 @@ export default class Coin extends Object3D {
                 const float scanlineIntensity = 2.0;
                 `,
         );
-
-        shader.fragmentShader = shader.fragmentShader.replace(
+        s.fragmentShader = s.fragmentShader.replace(
           '#include <color_fragment>',
           `#include <color_fragment>
 
@@ -152,26 +186,26 @@ export default class Coin extends Object3D {
                 // Add the colored scanline effect to the final color
                 diffuseColor.rgb += scanlineEffectInner + scanlineEffectOuter;`,
         );
-
-        shader.blending = AdditiveBlending;
+        // s.blending = AdditiveBlending; // Not a valid property on shader
       };
     }
 
     this.coin.material = this.material;
 
     this.coin.position.set(
-      this.settings.position.x,
-      this.settings.position.y,
-      this.settings.position.z,
+      this.settings.position!.x,
+      this.settings.position!.y,
+      this.settings.position!.z,
     );
     this.coin.rotation.set(
-      degToRad(this.settings.savedRotations.recto.x),
-      degToRad(this.settings.savedRotations.y),
-      degToRad(this.settings.savedRotations.recto.z),
+      degToRad(this.settings.savedRotations!.recto.x),
+      degToRad(this.settings.savedRotations!.y),
+      degToRad(this.settings.savedRotations!.recto.z),
     );
     this.add(this.coin);
 
     await this.transitionIn();
+    this.setupTweens();
   }
 
   async transitionIn() {
@@ -224,10 +258,17 @@ export default class Coin extends Object3D {
   setupDrag() {
     if (!this.settings.dragEnabled) return;
 
+    // Type guard for dragAxis
+    const axis = (['xy', 'x', 'y'] as const).includes(
+      this.settings.dragAxis as unknown as 'xy' | 'x' | 'y',
+    )
+      ? (this.settings.dragAxis as 'xy' | 'x' | 'y')
+      : 'xy';
+
     this.drag = new CustomDrag(this.coin, {
       name: 'coin-drag',
       settings: {
-        axis: this.settings.dragAxis,
+        axis: axis,
         speed: this.settings.dragSpeed,
         damping: this.settings.dragDamping,
         usePlane: true,
@@ -265,7 +306,7 @@ export default class Coin extends Object3D {
     });
   };
 
-  onDrag = ({ distance }) => {
+  onDrag = ({ distance }: { distance: { x: number; y: number } }) => {
     const mappedRotation = gsap.utils.mapRange(
       -1,
       1,
@@ -282,7 +323,13 @@ export default class Coin extends Object3D {
     this.dragRotationTween.invalidate().restart();
   };
 
-  onDragEnd = async ({ direction, distance }) => {
+  onDragEnd = async ({
+    direction,
+    distance,
+  }: {
+    direction: { horizontal: string };
+    distance: { x: number; y: number };
+  }) => {
     const targetScale = this.settings.scale;
 
     this.dragRotationTween.kill();
@@ -290,16 +337,20 @@ export default class Coin extends Object3D {
     // If distance is passed a certain threshold (-0.5 / 0.5) flip the coin
     if (distance.x > this.settings.flipThreshold || distance.x <= -this.settings.flipThreshold) {
       this.face =
-        this.face === this.settings.faces[0] ? this.settings.faces[1] : this.settings.faces[0];
+        this.face === this.settings.faces![0] ? this.settings.faces![1] : this.settings.faces![0];
 
       const rotationOffset = direction.horizontal === 'right' ? 180 : -180;
-      this.settings.savedRotations.y = this.settings.savedRotations.y + rotationOffset;
+      this.settings.savedRotations!.y = this.settings.savedRotations!.y + rotationOffset;
     }
 
-    const targetRotations = this.settings.savedRotations[this.face.toLowerCase()];
+    const targetRotations = this.settings.savedRotations![this.face.toLowerCase()] as {
+      x: number;
+      y: number;
+      z: number;
+    };
 
     this.returnRotationTween.vars.x = degToRad(targetRotations.x);
-    this.returnRotationTween.vars.y = degToRad(this.settings.savedRotations.y);
+    this.returnRotationTween.vars.y = degToRad(this.settings.savedRotations!.y);
     this.returnRotationTween.vars.z = degToRad(targetRotations.z);
 
     this.returnRotationTween.invalidate().restart(true);
@@ -317,76 +368,141 @@ export default class Coin extends Object3D {
   };
 
   addDebug() {
-    if (!sceneFolder) return;
-    const coinFolder = sceneFolder.addFolder({ title: 'Coin' });
-    coinFolder.addBinding(COIN_PARAMS, 'color').on('change', (ev) => {
+    if (
+      !sceneFolderTyped ||
+      typeof (sceneFolderTyped as { addFolder?: unknown }).addFolder !== 'function'
+    )
+      return;
+    const coinFolder = (
+      sceneFolderTyped as { addFolder: (opts: { title: string }) => unknown }
+    ).addFolder({ title: 'Coin' }) as {
+      addBinding: (...args: unknown[]) => unknown;
+      addFolder: (opts: { title: string }) => unknown;
+    };
+    const coinFolderObj = coinFolder as {
+      addBinding: (...args: unknown[]) => unknown;
+      addFolder: (opts: { title: string }) => unknown;
+    };
+    (
+      coinFolderObj.addBinding(COIN_PARAMS, 'color') as {
+        on: (event: string, cb: (ev: { value: string }) => void) => void;
+      }
+    ).on('change', (ev: { value: string }) => {
       this.material.color.set(ev.value);
     });
-    coinFolder.addBinding(COIN_PARAMS, 'roughness').on('change', (ev) => {
+    (
+      coinFolderObj.addBinding(COIN_PARAMS, 'roughness') as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
       this.material.roughness = ev.value;
     });
-    coinFolder.addBinding(COIN_PARAMS, 'metalness').on('change', (ev) => {
+    (
+      coinFolderObj.addBinding(COIN_PARAMS, 'metalness') as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
       this.material.metalness = ev.value;
     });
-    coinFolder.addBinding(COIN_PARAMS.position, 'x', { min: -5, max: 5 }).on('change', (ev) => {
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.position, 'x', { min: -5, max: 5 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
       this.position.x = ev.value;
     });
-    coinFolder.addBinding(COIN_PARAMS.position, 'y', { min: -5, max: 5 }).on('change', (ev) => {
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.position, 'y', { min: -5, max: 5 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
       this.position.y = ev.value;
     });
-    coinFolder.addBinding(COIN_PARAMS.position, 'z', { min: -5, max: 5 }).on('change', (ev) => {
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.position, 'z', { min: -5, max: 5 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
       this.position.z = ev.value;
     });
-    coinFolder
-      .addBinding(COIN_PARAMS.savedRotations.recto, 'x', { min: -180, max: 180 })
-      .on('change', (ev) => {
-        this.coin.rotation.x = degToRad(ev.value);
-      });
-    coinFolder
-      .addBinding(COIN_PARAMS.savedRotations, 'y', { min: -180, max: 180 })
-      .on('change', (ev) => {
-        this.coin.rotation.y = degToRad(ev.value);
-      });
-    coinFolder
-      .addBinding(COIN_PARAMS.savedRotations.recto, 'z', { min: -180, max: 180 })
-      .on('change', (ev) => {
-        this.coin.rotation.z = degToRad(ev.value);
-      });
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.savedRotations.recto, 'x', { min: -180, max: 180 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
+      this.coin.rotation.x = degToRad(ev.value);
+    });
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.savedRotations, 'y', { min: -180, max: 180 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
+      this.coin.rotation.y = degToRad(ev.value);
+    });
+    (
+      coinFolderObj.addBinding(COIN_PARAMS.savedRotations.recto, 'z', { min: -180, max: 180 }) as {
+        on: (event: string, cb: (ev: { value: number }) => void) => void;
+      }
+    ).on('change', (ev: { value: number }) => {
+      this.coin.rotation.z = degToRad(ev.value);
+    });
 
     if (this.drag) {
-      const dragFolder = coinFolder.addFolder({ title: 'Drag' });
-      dragFolder.addBinding(COIN_PARAMS, 'dragEnabled').on('change', (ev) => {
+      const dragFolder = coinFolderObj.addFolder({ title: 'Drag' }) as {
+        addBinding: (...args: unknown[]) => unknown;
+      };
+      (
+        dragFolder.addBinding(COIN_PARAMS, 'dragEnabled') as {
+          on: (event: string, cb: (ev: { value: boolean }) => void) => void;
+        }
+      ).on('change', (ev: { value: boolean }) => {
         if (ev.value) {
-          this.drag.enable();
+          this.drag!.enable();
         } else {
-          this.drag.disable();
+          this.drag!.disable();
         }
       });
-      dragFolder
-        .addBinding(COIN_PARAMS, 'dragAxis', { options: { xy: 'xy', x: 'x', y: 'y' } })
-        .on('change', (ev) => {
-          this.drag.setAxis(ev.value);
-        });
-      dragFolder
-        .addBinding(COIN_PARAMS, 'dragSpeed', { min: 0.001, max: 0.1 })
-        .on('change', (ev) => {
-          this.drag.settings.speed = ev.value;
-        });
-      dragFolder.addBinding(COIN_PARAMS, 'dragDamping', { min: 0, max: 0.5 }).on('change', (ev) => {
-        this.drag.settings.damping = ev.value;
+      (
+        dragFolder.addBinding(COIN_PARAMS, 'dragAxis', {
+          options: { xy: 'xy', x: 'x', y: 'y' },
+        }) as { on: (event: string, cb: (ev: { value: string }) => void) => void }
+      ).on('change', (ev: { value: string }) => {
+        // Type guard for dragAxis
+        const axis = (['xy', 'x', 'y'] as const).includes(ev.value as unknown as 'xy' | 'x' | 'y')
+          ? (ev.value as 'xy' | 'x' | 'y')
+          : 'xy';
+        this.drag!.setAxis(axis);
+      });
+      (
+        dragFolder.addBinding(COIN_PARAMS, 'dragSpeed', { min: 0.001, max: 0.1 }) as {
+          on: (event: string, cb: (ev: { value: number }) => void) => void;
+        }
+      ).on('change', (ev: { value: number }) => {
+        this.drag!.settings.speed = ev.value;
+      });
+      (
+        dragFolder.addBinding(COIN_PARAMS, 'dragDamping', { min: 0, max: 0.5 }) as {
+          on: (event: string, cb: (ev: { value: number }) => void) => void;
+        }
+      ).on('change', (ev: { value: number }) => {
+        this.drag!.settings.damping = ev.value;
       });
     }
 
     if (this.settings.scanlineEnabled && this.uniforms) {
-      coinFolder
-        .addBinding(this.uniforms.uTime, 'value', { label: 'Scanline Time', min: 0, max: 10 })
-        .on('change', (ev) => {
-          this.uniforms.uTime.value = ev.value;
-        });
+      (
+        coinFolderObj.addBinding(this.uniforms.uTime, 'value', {
+          label: 'Scanline Time',
+          min: 0,
+          max: 10,
+        }) as { on: (event: string, cb: (ev: { value: number }) => void) => void }
+      ).on('change', (ev: { value: number }) => {
+        this.uniforms.uTime.value = ev.value;
+      });
     }
   }
 
-  onTick({ time, rafDamp }) {
+  onTick({ time, rafDamp }: { time: number; rafDamp: number }) {
     if (
       !this.settings.debugPointer &&
       !this.drag?.state?.isDragging &&
@@ -408,7 +524,7 @@ export default class Coin extends Object3D {
   onResize() {
     const { width, height, dpr } = WebGLStore.viewport;
     const { uResolution } = this.uniforms;
-    uResolution.value.set(width * dpr, height * dpr, dpr);
+    uResolution.value.set(width * dpr, height * dpr);
 
     if (!WebGLStore.viewport.breakpoints.md) {
       this.responsiveScale = this.baseScale * (WebGLStore.viewport.width / 800);
