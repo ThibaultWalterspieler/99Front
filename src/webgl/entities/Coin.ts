@@ -72,14 +72,14 @@ export default class Coin extends Object3D {
     this.hasTransitionedIn = false;
 
     this.init();
+    this.setupTweens();
     this.setupDrag();
     this.addDebug();
     this.onResize();
   }
 
   async init() {
-    const asset = getAsset('coin-optimized');
-    const { scene } = asset;
+    const { scene } = getAsset('coin-optimized');
 
     const metallicMap = getAsset('ktx2-metalness');
     const normalMap = getAsset('tex-normal');
@@ -90,10 +90,7 @@ export default class Coin extends Object3D {
     this.coin = scene.children.find(
       (child: Object3D) => child instanceof Mesh && child.name === 'Rabbit_coin',
     ) as Mesh;
-
-    if (!this.coin) {
-      throw new Error("Coin mesh 'Rabbit_coin' not found in coin-optimized asset.");
-    }
+    this.coin.geometry.center();
 
     this.coin.position.set(0, 0, 0);
     this.coin.scale.setScalar(this.settings.scale);
@@ -205,7 +202,6 @@ export default class Coin extends Object3D {
     this.add(this.coin);
 
     await this.transitionIn();
-    this.setupTweens();
   }
 
   async transitionIn() {
