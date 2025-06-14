@@ -10,7 +10,10 @@ const isBrowser = typeof window !== 'undefined';
 const isDev = process.env.NODE_ENV === 'development';
 
 export default class WebGLApp {
-  init(wrapper) {
+  private wrapper?: HTMLElement;
+  private perf?: ThreePerf;
+
+  init(wrapper: HTMLElement): void {
     if (!wrapper || !isBrowser) return;
     this.wrapper = wrapper;
     this.wrapper.appendChild(Renderer.domElement);
@@ -24,7 +27,8 @@ export default class WebGLApp {
     this.onResize();
   }
 
-  setupPerfs() {
+  setupPerfs(): void {
+    if (!this.wrapper) return;
     this.perf = new ThreePerf({
       anchorX: 'left',
       anchorY: 'top',
@@ -33,10 +37,11 @@ export default class WebGLApp {
     });
   }
 
-  setupEvents() {
+  setupEvents(): void {
     Emitter.on('site:tick', this.onTick);
 
-    window.addEventListener('keydown', (e) => {
+    window.addEventListener('keydown', (e: KeyboardEvent) => {
+      if (!this.perf) return;
       let toggle = false;
       if (e.key === 'p') {
         toggle = !this.perf.visible;
@@ -45,7 +50,7 @@ export default class WebGLApp {
     });
   }
 
-  onTick = ({ time, delta, rafDamp }) => {
+  onTick = ({ time, delta, rafDamp }: { time: number; delta: number; rafDamp: number }): void => {
     Scene?.onTick?.({ time, delta, rafDamp });
     Camera?.onTick?.();
 
@@ -58,7 +63,7 @@ export default class WebGLApp {
     Renderer?.stats?.update?.();
   };
 
-  onResize = () => {
+  onResize = (): void => {
     Scene?.onResize?.();
     Camera?.onResize?.();
 

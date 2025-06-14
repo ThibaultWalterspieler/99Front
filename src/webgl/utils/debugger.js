@@ -45,7 +45,7 @@ if (isDev) {
 
 export function initDebugger(wrapper) {
   if (!wrapper) return;
-  console.log('initDebugger', wrapper);
+
   tweakWrapper.appendChild(tweakContainer);
   wrapper.appendChild(tweakWrapper);
 }

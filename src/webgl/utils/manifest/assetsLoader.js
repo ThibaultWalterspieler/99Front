@@ -235,7 +235,6 @@ export const loadManifest = function (arrayIn, onProgress = null) {
     };
 
     if (numItems <= 0) {
-      console.log('all assets already loaded');
       onProgress?.(1);
       resolve();
       return;

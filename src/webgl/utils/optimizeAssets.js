@@ -5,8 +5,7 @@ import { NodeIO } from '@gltf-transform/core';
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions';
 import * as FUNCTIONS from '@gltf-transform/functions';
 import draco3d from 'draco3dgltf';
-import { MeshoptSimplifier } from 'meshoptimizer';
-import { MeshoptEncoder } from 'meshoptimizer';
+import { MeshoptEncoder, MeshoptSimplifier } from 'meshoptimizer';
 
 // Configure I/O.
 const io = new NodeIO().registerExtensions(ALL_EXTENSIONS).registerDependencies({
@@ -51,8 +50,5 @@ async function optimizeGLTF(inputPath, outputPath) {
 
 const inputPath = path.resolve('src/assets/models/coin.glb');
 const outputPath = path.resolve('src/assets/models/coin-optimized.glb');
-
-console.log(inputPath);
-console.log(outputPath);
 
 optimizeGLTF(inputPath, outputPath);

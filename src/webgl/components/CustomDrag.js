@@ -105,24 +105,24 @@ export class CustomDrag {
     this._tempVector = new Vector3();
 
     // Store callbacks and create debounced versions
-    const originalOnDragStart = options?.onDragStart || (() => { });
-    const originalOnDragEnd = options?.onDragEnd || (() => { });
+    const originalOnDragStart = options?.onDragStart || (() => {});
+    const originalOnDragEnd = options?.onDragEnd || (() => {});
 
     this.callbacks = {
       onDragStart:
         this.settings.debounceDelay > 0
           ? debounce(originalOnDragStart, this.settings.debounceDelay, {
-            leading: this.settings.debounceLeading,
-            trailing: !this.settings.debounceLeading,
-          })
+              leading: this.settings.debounceLeading,
+              trailing: !this.settings.debounceLeading,
+            })
           : originalOnDragStart,
-      onDrag: options?.onDrag || (() => { }),
+      onDrag: options?.onDrag || (() => {}),
       onDragEnd:
         this.settings.debounceEndDelay > 0
           ? debounce(originalOnDragEnd, this.settings.debounceEndDelay, {
-            leading: this.settings.debounceEndLeading,
-            trailing: !this.settings.debounceEndLeading,
-          })
+              leading: this.settings.debounceEndLeading,
+              trailing: !this.settings.debounceEndLeading,
+            })
           : originalOnDragEnd,
     };
 
@@ -227,12 +227,14 @@ export class CustomDrag {
         // Use the current position from our state instead of the event state
         const touchDistance = new Vector2().subVectors(
           this.state.currentPos,
-          this.state.touchStartPos
+          this.state.touchStartPos,
         );
 
         // Only apply momentum if the touch was quick enough and moved far enough
         if (touchDuration < 300 && touchDistance.length() > this.settings.touchStartThreshold) {
-          this.state.momentum.copy(touchDistance).multiplyScalar(1 / touchDuration * this.settings.touchSensitivity);
+          this.state.momentum
+            .copy(touchDistance)
+            .multiplyScalar((1 / touchDuration) * this.settings.touchSensitivity);
         }
       }
 
@@ -377,7 +379,7 @@ export class CustomDrag {
         const momentumDelta = new Vector3(
           this.state.momentum.x * this.settings.speed,
           -this.state.momentum.y * this.settings.speed,
-          0
+          0,
         );
 
         dragData.position.add(momentumDelta);
@@ -478,9 +480,9 @@ export class CustomDrag {
     this.callbacks.onDragStart =
       delay > 0
         ? debounce(originalOnDragStart, delay, {
-          leading,
-          trailing: !leading,
-        })
+            leading,
+            trailing: !leading,
+          })
         : originalOnDragStart;
   }
 
@@ -508,9 +510,9 @@ export class CustomDrag {
     this.callbacks.onDragEnd =
       delay > 0
         ? debounce(originalOnDragEnd, delay, {
-          leading,
-          trailing: !leading,
-        })
+            leading,
+            trailing: !leading,
+          })
         : originalOnDragEnd;
   }
 
@@ -539,7 +541,8 @@ export class CustomDrag {
    */
   setTouchSettings(options = {}) {
     if (options.preventScroll !== undefined) this.settings.preventScroll = options.preventScroll;
-    if (options.startThreshold !== undefined) this.settings.touchStartThreshold = options.startThreshold;
+    if (options.startThreshold !== undefined)
+      this.settings.touchStartThreshold = options.startThreshold;
   }
 
   /**

@@ -44,8 +44,6 @@ class WebGLStore extends EventDispatcher {
       eventsEnabled: true,
       debugHidden: true,
     };
-
-    console.log(`⚙️ settings`, this.#settings);
   }
 
   get viewport() {

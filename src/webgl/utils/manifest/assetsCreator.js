@@ -17,7 +17,6 @@ export function createManifestAssets({ obj, prefix, type }) {
     };
 
     if (manifest.has(id)) {
-      console.log(new Error(`duplicate unneeded file with id: ${id}`));
       continue;
     } else {
       manifest.set(id, data);

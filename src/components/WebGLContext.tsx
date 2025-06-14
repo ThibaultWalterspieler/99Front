@@ -25,12 +25,12 @@ export const WebGLContext: React.FC<WebGLContextProps> = () => {
             webglAppRef.current = new WebGLApp();
             webglAppRef.current?.init?.(webglWrapperRef.current);
           } catch (error) {
-            console.error('Failed to initialize WebGL:', error);
+            throw new Error(`Failed to initialize WebGL: ${error}`);
           }
         }
       })
       .catch((error) => {
-        console.error('Failed to load manifest:', error);
+        throw new Error(`Failed to load manifest: ${error}`);
       });
 
     return () => {
