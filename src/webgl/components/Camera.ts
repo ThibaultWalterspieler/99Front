@@ -5,10 +5,10 @@ import Renderer from '@99Stud/webgl/components/Renderer';
 import { CONTROLS_ENABLED } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 
-interface UnitSize {
+type UnitSize = {
   width: number;
   height: number;
-}
+};
 
 class Camera extends PerspectiveCamera {
   controls!: OrbitControls;

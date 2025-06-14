@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { AnchorHTMLAttributes, FC } from 'react';
 
-interface ExternalLinkProps extends AnchorHTMLAttributes<HTMLAnchorElement> {
+type ExternalLinkProps = AnchorHTMLAttributes<HTMLAnchorElement> & {
   href: string;
-}
+};
 
 const ExternalLink: FC<ExternalLinkProps> = ({ children, href, ...props }) => {
   return (

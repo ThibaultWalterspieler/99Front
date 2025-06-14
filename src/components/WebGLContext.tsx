@@ -8,9 +8,9 @@ import { loadManifest } from '@99Stud/webgl/utils/manifest/assetsLoader';
 import { manifest } from '@99Stud/webgl/utils/manifest/preloadManifest';
 import WebGLApp from '@99Stud/webgl/WebGLApp';
 
-interface WebGLContextProps {
+type WebGLContextProps = {
   className?: string;
-}
+};
 
 export const WebGLContext: React.FC<WebGLContextProps> = () => {
   const webglWrapperRef = useRef<HTMLDivElement>(null);
@@ -47,5 +47,10 @@ export const WebGLContext: React.FC<WebGLContextProps> = () => {
     }
   }, [width, height]);
 
-  return <div className="webgl-wrapper fixed w-full h-full inset-0 z-0 pointer-events-none touch-none overflow-hidden" ref={webglWrapperRef} />;
+  return (
+    <div
+      className="webgl-wrapper fixed w-full h-full inset-0 z-0 pointer-events-none touch-none overflow-hidden"
+      ref={webglWrapperRef}
+    />
+  );
 };

@@ -9,7 +9,7 @@ import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { sceneFolder } from '@99Stud/webgl/utils/debugger';
 import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
-interface CoinOptions {
+type CoinOptions = {
   name?: string;
   settings?: Partial<typeof COIN_PARAMS> & {
     faces?: string[];
@@ -29,7 +29,7 @@ interface CoinOptions {
     position?: { x: number; y: number; z: number };
     debugPointer?: boolean;
   };
-}
+};
 
 // Fallback type for sceneFolder to avoid never type error
 const sceneFolderTyped: unknown = sceneFolder;
