@@ -35,6 +35,11 @@ const eslintConfig = [
   },
   {
     rules: {
+      'no-console': 'warn',
+    },
+  },
+  {
+    rules: {
       'import/order': [
         'error',
         {
