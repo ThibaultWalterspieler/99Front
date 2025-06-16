@@ -1,10 +1,10 @@
-import { COIN_PARAMS } from '@99Stud/webgl/store/constants';
 import gsap from 'gsap';
 import { Color, FrontSide, Mesh, MeshStandardMaterial, Object3D, Vector2, Vector3 } from 'three';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
 import { CustomDrag } from '@99Stud/webgl/components/CustomDrag';
 import { GlobalPointer } from '@99Stud/webgl/events';
+import { COIN_PARAMS } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { sceneFolder } from '@99Stud/webgl/utils/debugger';
 import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';

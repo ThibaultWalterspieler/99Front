@@ -1,4 +1,3 @@
-import { BACKGROUND_PARAMS } from '@99Stud/webgl/store/constants';
 import {
   BackSide,
   Color,
@@ -11,6 +10,7 @@ import {
 } from 'three';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
+import { BACKGROUND_PARAMS } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { sceneFolder } from '@99Stud/webgl/utils/debugger';
 import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';

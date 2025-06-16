@@ -135,7 +135,6 @@ export class CustomDrag {
    */
   init() {
     if (!this.target) {
-      console.warn(`${this.name}: No target provided`);
       return;
     }
 
