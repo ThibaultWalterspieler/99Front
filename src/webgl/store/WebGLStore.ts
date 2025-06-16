@@ -2,18 +2,41 @@ import { getGPUTier } from 'detect-gpu';
 import gsap from 'gsap';
 import { EventDispatcher } from 'three';
 
-// Tier list -> tier: 1 (>= 15 fps), tier: 2 (>= 30 fps), tier: 3 (>= 60 fps)
 const tier = getGPUTier();
 
+interface Viewport {
+  width: number;
+  height: number;
+  aspect: number;
+  dpr: number;
+  breakpoints: {
+    xl: boolean;
+    lg: boolean;
+    md: boolean;
+  };
+}
+
+interface DeviceSettings {
+  tier: unknown;
+  fxaa: boolean;
+  isMobile: boolean;
+}
+
+interface State {
+  currentScene?: unknown;
+  previousScene: unknown;
+  eventsEnabled: boolean;
+  debugHidden: boolean;
+}
+
 class WebGLStore extends EventDispatcher {
-  #viewport;
-  #settings;
-  #state;
+  #viewport: Viewport;
+  #settings: { device: DeviceSettings };
+  #state: State;
 
   constructor() {
     super();
 
-    // Check if we're on the client side
     const isClient = typeof window !== 'undefined';
     const width = isClient ? window.innerWidth : 1920;
     const height = isClient ? window.innerHeight : 1080;
@@ -40,43 +63,44 @@ class WebGLStore extends EventDispatcher {
     };
 
     this.#state = {
+      currentScene: undefined,
       previousScene: null,
       eventsEnabled: true,
       debugHidden: true,
     };
   }
 
-  get viewport() {
+  get viewport(): Viewport {
     return { ...this.#viewport };
   }
 
-  get deviceSettings() {
+  get deviceSettings(): DeviceSettings {
     return { ...this.#settings.device };
   }
 
-  get currentScene() {
+  get currentScene(): unknown {
     return this.#state.currentScene;
   }
 
-  get previousScene() {
+  get previousScene(): unknown {
     return this.#state.previousScene;
   }
 
-  get eventsEnabled() {
+  get eventsEnabled(): boolean {
     return this.#state.eventsEnabled;
   }
 
-  setDeviceSettings({ tier, isMobile }) {
+  setDeviceSettings({ tier, isMobile }: { tier: unknown; isMobile: boolean }): void {
     const { device } = this.#settings;
     device.tier = tier;
     device.isMobile = isMobile;
   }
 
-  setEvents(value = true) {
+  setEvents(value: boolean = true): void {
     this.#state.eventsEnabled = value;
   }
 
-  onResize(width, height) {
+  onResize(width: number, height: number): void {
     this.#viewport.width = width;
     this.#viewport.height = height;
     this.#viewport.aspect = width / height;
@@ -87,5 +111,6 @@ class WebGLStore extends EventDispatcher {
   }
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default new WebGLStore();
+const webglStore = new WebGLStore();
+
+export default webglStore;
