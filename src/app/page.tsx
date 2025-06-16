@@ -18,11 +18,15 @@ const links = [
     href: 'https://www.behance.net/99stud/members',
     label: 'Behance',
   },
-]
+  {
+    href: 'https://www.linkedin.com/company/99stud/',
+    label: 'LinkedIn',
+  },
+];
 
 export default function Home() {
   return (
-    <div 
+    <div
       className="relative w-full h-screen overflow-hidden user-select-none pointer-events-none touch-none"
       style={{
         WebkitTouchCallout: 'none',
@@ -35,7 +39,9 @@ export default function Home() {
 
       <div className="link-wrapper overflow-hidden pointer-events-auto absolute z-50 bottom-[20px] md:top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
         {links.map((link) => (
-          <ExternalLink href={link.href} key={link.href}>{link.label}</ExternalLink>
+          <ExternalLink href={link.href} key={link.href}>
+            {link.label}
+          </ExternalLink>
         ))}
       </div>
     </div>
