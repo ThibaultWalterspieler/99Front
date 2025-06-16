@@ -58,13 +58,16 @@ class Pointer {
     state.touchStartTime = Date.now();
     state.touchStartPos = {
       x: touch.clientX,
-      y: touch.clientY
+      y: touch.clientY,
     };
 
     // Check if the touch target is a link or button
     const target = e.target;
-    const isInteractive = target.tagName === 'A' || target.tagName === 'BUTTON' ||
-      target.closest('a') || target.closest('button');
+    const isInteractive =
+      target.tagName === 'A' ||
+      target.tagName === 'BUTTON' ||
+      target.closest('a') ||
+      target.closest('button');
 
     // Only prevent default if we're not touching an interactive element
     if (state.preventScroll && !isInteractive) {
@@ -83,13 +86,13 @@ class Pointer {
         isTouch: true,
         touchStartTime: state.touchStartTime,
         touchStartPos: state.touchStartPos,
-        isInteractive
+        isInteractive,
       },
     });
   };
 
   onTouchMove = (e) => {
-    const touch = Array.from(e.touches).find(t => t.identifier === this.state.touchIdentifier);
+    const touch = Array.from(e.touches).find((t) => t.identifier === this.state.touchIdentifier);
     if (!touch) return;
 
     // Update position
@@ -113,7 +116,7 @@ class Pointer {
         normalizedPos: this.state.normalized,
         mappedPos: this.state.mapped,
         isTouch: true,
-        isDragging: this.state.isDragging
+        isDragging: this.state.isDragging,
       },
     });
   };
@@ -130,8 +133,8 @@ class Pointer {
       state: {
         isTouch: true,
         touchDuration: Date.now() - state.touchStartTime,
-        wasDragging: state.isDragging
-      }
+        wasDragging: state.isDragging,
+      },
     });
   };
 
@@ -146,7 +149,7 @@ class Pointer {
         pos: this.state.target,
         normalizedPos: this.state.normalized,
         mappedPos: this.state.mapped,
-        isTouch: false
+        isTouch: false,
       },
     });
   };
@@ -160,7 +163,7 @@ class Pointer {
         pos: this.state.target,
         normalizedPos: this.state.normalized,
         mappedPos: this.state.mapped,
-        isTouch: false
+        isTouch: false,
       },
     });
   };
@@ -173,8 +176,8 @@ class Pointer {
     Emitter.emit('site:pointer:up', {
       e,
       state: {
-        isTouch: false
-      }
+        isTouch: false,
+      },
     });
   };
 
@@ -217,8 +220,8 @@ class Pointer {
       Emitter.emit('site:pointer:lerping', {
         state: {
           ...this.state,
-          isTouch
-        }
+          isTouch,
+        },
       });
     }
   };
