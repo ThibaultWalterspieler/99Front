@@ -2,6 +2,8 @@ import gsap from 'gsap';
 
 import Emitter from './Emitter';
 class Raf {
+  private isPaused: boolean;
+
   constructor() {
     this.isPaused = false;
 
@@ -12,7 +14,7 @@ class Raf {
     gsap.ticker.add(this.onTick);
   }
 
-  onTick = (time, deltaTime) => {
+  onTick = (time: number, deltaTime: number) => {
     if (!this.isPaused) {
       Emitter.emit('site:tick', {
         delta: deltaTime,
@@ -23,5 +25,6 @@ class Raf {
   };
 }
 
-// eslint-disable-next-line import/no-anonymous-default-export
-export default new Raf();
+const raf = new Raf();
+
+export default raf;

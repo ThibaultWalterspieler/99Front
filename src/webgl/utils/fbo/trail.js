@@ -1,6 +1,6 @@
 import fragment from '@99Stud/webgl/shaders/utils/trail.glsl';
 
-import { Emitter } from '@99Stud/webgl/events';
+import Emitter from '@99Stud/webgl/events/Emitter';
 import FBO from '@99Stud/webgl/utils/fbo';
 
 class Trail {

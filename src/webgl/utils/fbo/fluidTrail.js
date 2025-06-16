@@ -1,7 +1,7 @@
 import { Vector2 } from 'three';
 
 import Renderer from '@99Stud/webgl/components/Renderer';
-import { Emitter } from '@99Stud/webgl/events';
+import Emitter from '@99Stud/webgl/events/Emitter';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { Fluid } from '@99Stud/webgl/utils/fbo/fluid';
 

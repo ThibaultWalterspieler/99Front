@@ -1,7 +1,7 @@
 import Stats from 'stats-js';
 import { ACESFilmicToneMapping, Color, WebGLRenderer } from 'three';
 
-import { GlobalRaf } from '@99Stud/webgl/events';
+import GlobalRaf from '@99Stud/webgl/events/Raf';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import tweak, { rendererFolder } from '@99Stud/webgl/utils/debugger';
 

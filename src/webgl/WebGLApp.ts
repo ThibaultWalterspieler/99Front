@@ -3,7 +3,7 @@ import { ThreePerf } from 'three-perf';
 import Camera from '@99Stud/webgl/components/Camera';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
-import { Emitter } from '@99Stud/webgl/events';
+import Emitter from '@99Stud/webgl/events/Emitter';
 import { DEBUG_ENABLED } from '@99Stud/webgl/store/constants';
 
 const isBrowser = typeof window !== 'undefined';
