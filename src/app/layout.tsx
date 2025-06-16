@@ -38,6 +38,8 @@ export const metadata: Metadata = {
 const RootLayout: FC<PropsWithChildren> = ({ children }) => {
   return (
     <html lang="en">
+      <link href="/favicon.ico" rel="icon" sizes="any" />
+      <link href="/icon?<generated>" rel="icon" sizes="<generated>" type="image/<generated>" />
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased overflow-hidden`}
       >
