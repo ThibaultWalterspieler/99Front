@@ -26,7 +26,8 @@ export const COIN_PARAMS = {
     },
   },
   scale: 0.25,
-  flipThreshold: WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.1 : 1,
+  flipThreshold:
+    WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md ? 0.1 : 1,
   scanlineEnabled: false,
   dragEnabled: true,
   dragAxis: 'xy',
