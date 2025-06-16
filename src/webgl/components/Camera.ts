@@ -1,8 +1,8 @@
+import { CONTROLS_ENABLED } from '@99Stud/webgl/store/constants';
 import { PerspectiveCamera, Vector3 } from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 import Renderer from '@99Stud/webgl/components/Renderer';
-import { CONTROLS_ENABLED } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 
 type UnitSize = {

@@ -318,5 +318,5 @@ export default class TextureTunnel extends Object3D {
         this.mesh.material.uniforms.uAnimationOffset.value = ev.value;
       });
   }
-  dispose() { }
+  dispose() {}
 }
