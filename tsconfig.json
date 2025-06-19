@@ -19,6 +19,9 @@
       }
     ],
     "paths": {
+      "@components/*": ["./src/components/*"],
+      "@webgl/*": ["./src/webgl/*"],
+      "@lib/*": ["./src/lib/*"],
       "@99Stud/*": ["./src/*"]
     }
   },

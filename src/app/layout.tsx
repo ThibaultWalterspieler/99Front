@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/next';
-import { Geist, Geist_Mono } from 'next/font/google';
-import localFont from 'next/font/local';
+import { Geist } from 'next/font/google';
 import { FC, PropsWithChildren } from 'react';
 
 import type { Metadata } from 'next';
@@ -10,16 +9,6 @@ import './globals.scss';
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
-});
-
-const geistMono = Geist_Mono({
-  variable: '--font-geist-mono',
-  subsets: ['latin'],
-});
-
-const ppSupplySans = localFont({
-  src: 'fonts/PPSupplySans-Regular.woff2',
-  variable: '--font-supply-sans',
 });
 
 export const metadata: Metadata = {
@@ -40,9 +29,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
     <html lang="en">
       <link href="/favicon.ico" rel="icon" sizes="any" />
       <link href="/icon?<generated>" rel="icon" sizes="<generated>" type="image/<generated>" />
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} ${ppSupplySans.variable} antialiased overflow-hidden`}
-      >
+      <body className={`${geistSans.variable}  antialiased font-sans`}>
         {children}
         <Analytics />
       </body>

@@ -1,49 +1,54 @@
-'use client';
+import clsx from 'clsx';
+import Link from 'next/link';
+import { FC } from 'react';
 
-import dynamic from 'next/dynamic';
+import { HOME_SOCIAL_LINKS } from '@lib/pages/Home/constants';
 
-import ExternalLink from '@99Stud/components/Link';
+import { HomeClient } from '@components/pages/Home/HomeClient';
 
-const WebGLContext = dynamic(
-  () => import('@99Stud/components/WebGLContext').then((mod) => mod.WebGLContext),
-  { ssr: false },
-);
-
-const links = [
-  {
-    href: 'https://www.instagram.com/99stud/',
-    label: 'Instagram',
-  },
-  {
-    href: 'https://www.behance.net/99stud/members',
-    label: 'Behance',
-  },
-  {
-    href: 'https://www.linkedin.com/company/99stud/',
-    label: 'LinkedIn',
-  },
-];
-
-export default function Home() {
+const Home: FC = () => {
   return (
-    <div
-      className="relative w-full h-screen overflow-hidden user-select-none pointer-events-none touch-none"
-      style={{
-        WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
-        WebkitTapHighlightColor: 'transparent',
-        touchAction: 'none',
-      }}
-    >
-      <WebGLContext />
-
-      <div className="link-wrapper overflow-hidden pointer-events-auto absolute z-50 bottom-[20px] md:top-[20px] right-[20px] w-fit h-fit flex flex-row items-center justify-center gap-[16px] pointer-events-auto">
-        {links.map((link) => (
-          <ExternalLink href={link.href} key={link.href}>
-            {link.label}
-          </ExternalLink>
-        ))}
-      </div>
-    </div>
+    <main>
+      <HomeClient className={clsx('fixed -z-10')} />
+      <header
+        className={clsx(
+          'h-screen w-screen',
+          'grid grid-cols-1 grid-rows-3 md:grid-cols-2 md:grid-rows-2',
+        )}
+      >
+        <nav className={clsx('fixed top-4 left-4', 'flex flex-col gap-4')}>
+          <Link className={clsx('text-sm font-medium underline')} href="/legal-notice">
+            Legal Notice
+          </Link>
+        </nav>
+        <nav className={clsx('fixed top-4 right-4', 'flex flex-col gap-4')}>
+          {HOME_SOCIAL_LINKS.map((link) => (
+            <Link
+              aria-label={link.ariaLabel}
+              href={link.href}
+              key={link.href}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              {link.icon}
+            </Link>
+          ))}
+        </nav>
+        <div
+          className={clsx(
+            'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
+            'flex items-center justify-center gap-3',
+            'text-white',
+          )}
+        >
+          <h1 className={clsx('text-2xl font-bold tracking-[-0.125em] italic')}>99stud</h1>
+          <span className={clsx('text-xl font-light', 'translate-y-0.2w5')}>
+            creative collective
+          </span>
+        </div>
+      </header>
+    </main>
   );
-}
+};
+
+export default Home;
