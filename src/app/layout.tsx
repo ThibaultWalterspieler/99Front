@@ -29,7 +29,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
     <html lang="en">
       <link href="/favicon.ico" rel="icon" sizes="any" />
       <link href="/icon?<generated>" rel="icon" sizes="<generated>" type="image/<generated>" />
-      <body className={`${geistSans.variable}  antialiased font-sans`}>
+      <body className={`${geistSans.variable} font-sans antialiased`}>
         {children}
         <Analytics />
       </body>
