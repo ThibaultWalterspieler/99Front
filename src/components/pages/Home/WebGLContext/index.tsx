@@ -54,7 +54,6 @@ export const WebGLContext: FC<Props> = ({ className }) => {
         className,
         'webgl-wrapper',
         'overflow-hidden',
-        'h-screen w-screen',
         'pointer-events-none touch-none',
       )}
       ref={webglWrapperRef}

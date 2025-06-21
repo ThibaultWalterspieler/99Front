@@ -1,15 +1,25 @@
 import { Analytics } from '@vercel/analytics/next';
-import { Geist } from 'next/font/google';
+import clsx from 'clsx';
+import { Geist, Geist_Mono } from 'next/font/google';
 import { FC, PropsWithChildren } from 'react';
 
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 
-import './globals.scss';
+import './globals.css';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
   subsets: ['latin'],
 });
+
+const geistMono = Geist_Mono({
+  variable: '--font-geist-mono',
+  subsets: ['latin'],
+});
+
+export const viewport: Viewport = {
+  themeColor: [{ media: '(prefers-color-scheme: light)', color: '#0a0a0a' }],
+};
 
 export const metadata: Metadata = {
   title: '99stud | Creative Independent Studio',
@@ -29,7 +39,7 @@ const RootLayout: FC<PropsWithChildren> = ({ children }) => {
     <html lang="en">
       <link href="/favicon.ico" rel="icon" sizes="any" />
       <link href="/icon?<generated>" rel="icon" sizes="<generated>" type="image/<generated>" />
-      <body className={`${geistSans.variable} font-sans antialiased`}>
+      <body className={clsx(geistSans.variable, geistMono.variable, 'font-sans antialiased')}>
         {children}
         <Analytics />
       </body>

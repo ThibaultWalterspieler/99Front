@@ -9,28 +9,31 @@ import { HomeClient } from '@components/pages/Home/HomeClient';
 const Home: FC = () => {
   return (
     <main>
-      <HomeClient className={clsx('fixed -z-10')} />
+      <HomeClient className={clsx('fixed -z-10', 'h-screen w-screen')} />
       <header
         className={clsx(
-          'h-screen w-screen',
+          'h-dvh w-dvw',
           'grid grid-cols-1 grid-rows-3 md:grid-cols-2 md:grid-rows-2',
         )}
       >
-        <nav className={clsx('fixed top-4 left-4', 'flex flex-col gap-4')}>
-          <Link className={clsx('text-sm font-medium underline')} href="/legal-notice">
+        <nav
+          className={clsx('fixed top-4 left-4 lg:bottom-4', 'flex flex-col gap-4', 'text-white')}
+        >
+          <Link className={clsx('text-sm font-medium underline select-none')} href="/legal-notice">
             Legal Notice
           </Link>
         </nav>
-        <nav className={clsx('fixed top-4 right-4', 'flex flex-col gap-4')}>
+        <nav className={clsx('fixed top-4 right-4', 'flex flex-col gap-3', 'text-right font-mono')}>
           {HOME_SOCIAL_LINKS.map((link) => (
             <Link
               aria-label={link.ariaLabel}
+              className={clsx('font-medium text-gray-400 uppercase underline select-none')}
               href={link.href}
               key={link.href}
               rel="noopener noreferrer"
               target="_blank"
             >
-              {link.icon}
+              {link.label}
             </Link>
           ))}
         </nav>
@@ -38,7 +41,7 @@ const Home: FC = () => {
           className={clsx(
             'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
             'flex items-center justify-center gap-3',
-            'text-white',
+            'text-white select-none',
           )}
         >
           <h1 className={clsx('text-2xl font-bold tracking-[-0.125em] italic')}>99stud</h1>
