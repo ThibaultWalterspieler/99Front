@@ -9,6 +9,7 @@
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -26,12 +27,12 @@ body {
 .webgl-wrapper {
   touch-action: none;
   user-select: none;
+}
 
-  & > canvas {
-    -webkit-tap-highlight-color: transparent;
-    touch-action: none;
-    user-select: none;
-  }
+.webgl-wrapper > canvas {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: none;
+  user-select: none;
 }
 
 .link-wrapper {
@@ -45,9 +46,10 @@ body {
 .tp-tabv_c {
   max-height: 92vh;
   overflow-y: auto !important;
-  &::-webkit-scrollbar {
-    display: none;
-  }
+}
+
+.tp-tabv_c::-webkit-scrollbar {
+  display: none;
 }
 
 .tp-btnCopy {
@@ -68,22 +70,20 @@ body {
   cursor: pointer;
   border: none;
   border-radius: 2px;
+}
 
-  & .tp-btnCopy-copied {
-    display: none;
-  }
+.tp-btnCopy .tp-btnCopy-copied {
+  display: none;
+}
 
-  & .tp-btnCopy-copy {
-    display: block;
-  }
+.tp-btnCopy .tp-btnCopy-copy {
+  display: block;
+}
 
-  &.copied {
-    & .tp-btnCopy-copied {
-      display: block;
-    }
+.tp-btnCopy.copied .tp-btnCopy-copied {
+  display: block;
+}
 
-    & .tp-btnCopy-copy {
-      display: none;
-    }
-  }
+.tp-btnCopy.copied .tp-btnCopy-copy {
+  display: none;
 }
