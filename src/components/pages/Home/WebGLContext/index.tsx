@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useRef } from 'react';
+import clsx from 'clsx';
+import { FC, useEffect, useRef } from 'react';
 import { useWindowSize } from 'usehooks-ts';
 
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
@@ -8,11 +9,11 @@ import { loadManifest } from '@99Stud/webgl/utils/manifest/assetsLoader';
 import { manifest } from '@99Stud/webgl/utils/manifest/preloadManifest';
 import WebGLApp from '@99Stud/webgl/WebGLApp';
 
-type WebGLContextProps = {
+interface Props {
   className?: string;
-};
+}
 
-export const WebGLContext: React.FC<WebGLContextProps> = () => {
+export const WebGLContext: FC<Props> = ({ className }) => {
   const webglWrapperRef = useRef<HTMLDivElement>(null);
   const webglAppRef = useRef<WebGLApp | null>(null);
   const { width = 0, height = 0 } = useWindowSize();
@@ -49,8 +50,19 @@ export const WebGLContext: React.FC<WebGLContextProps> = () => {
 
   return (
     <div
-      className="webgl-wrapper fixed w-full h-full inset-0 z-0 pointer-events-none touch-none overflow-hidden"
+      className={clsx(
+        className,
+        'webgl-wrapper',
+        'overflow-hidden',
+        'pointer-events-none touch-none',
+      )}
       ref={webglWrapperRef}
+      style={{
+        WebkitTouchCallout: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        touchAction: 'none',
+      }}
     />
   );
 };
