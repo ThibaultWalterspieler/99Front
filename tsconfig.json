@@ -13,11 +13,7 @@
     "isolatedModules": true,
     "jsx": "preserve",
     "incremental": true,
-    "plugins": [
-      {
-        "name": "next"
-      }
-    ],
+    "plugins": [{ "name": "next" }, { "name": "typescript-plugin-css-modules" }],
     "paths": {
       "@components/*": ["./src/components/*"],
       "@webgl/*": ["./src/webgl/*"],
