@@ -27,7 +27,7 @@ const links = [
 export default function Home() {
   return (
     <div
-      className="relative w-full h-screen overflow-hidden user-select-none pointer-events-none touch-none"
+      className="relative w-full h-screen overflow-hidden"
       style={{
         WebkitTouchCallout: 'none',
         WebkitUserSelect: 'none',

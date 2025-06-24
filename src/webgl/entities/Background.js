@@ -48,7 +48,7 @@ export default class Background extends Object3D {
         uGradientSpeed: { value: this.settings.gradientSpeed },
         uBlurriness: { value: this.settings.blurriness },
         uBlueNoiseTexelSize: { value: new Vector2(1 / 8, 1 / 8) },
-        uBlueNoiseCoordOffset: { value: new Vector2(0, 0) },
+        uBlueNoiseCoordOffset: { value: new Vector2(0.05, 0.05) },
       },
       vertexShader: `
                 varying vec4 vMvPos;
@@ -93,8 +93,9 @@ export default class Background extends Object3D {
 
                 #define PI 3.14159265
 
-                vec3 getBlueNoiseStatic(vec2 coord) {
-                    return texture2D(tBlueNoise, coord * uBlueNoiseTexelSize).rgb;
+                vec4 getNoise(sampler2D tex, vec2 uv, vec2 offset) {
+                    float invSize = 1.0/float(textureSize(tex, 0).x);
+                    return texture(tex, uv*invSize+offset);
                 }
 
                 float range(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
@@ -219,14 +220,6 @@ export default class Background extends Object3D {
                     // Apply blur more carefully to preserve gradient smoothness
                     vec4 blurred = blur(tGrad, st, vec2(1.0, 1.0) * uBlurriness);
                     col = mix(col, blurred.rgb, 1.0);
-
-                    // Strong temporal + spatial dithering
-                    vec3 spatialDither = getBlueNoiseStatic(gl_FragCoord.xy) - 0.5;
-                    vec3 temporalDither = getBlueNoiseStatic(gl_FragCoord.xy + uTime * 1000.0) - 0.5;
-                    vec3 combinedDither = (spatialDither + temporalDither * 0.5) * (10.0/255.0);
-                    
-                    // Apply strong dithering early
-                    col += combinedDither;
                     
                     // Smooth noise application with heavy filtering
                     float noise = snoise(vec3(uv * uGradientScale1, uTime * uGradientSpeed));
@@ -245,13 +238,14 @@ export default class Background extends Object3D {
                     col = mix(col, uColorInner, noise * 0.1); // Very subtle
                     col = mix(col, uColorOuter, noiseThird * 0.45); // Reduced
                     col = mix(col, uColorMid, noiseSecond * 0.4); // Reduced
-                    
-                    // Final aggressive dithering to break any remaining quantization
-                    col += combinedDither * 1.5;
+
                     
                     // Additional high-frequency dithering
                     float highFreqDither = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
                     col += vec3(highFreqDither * (0.5/255.0));
+
+                    vec4 blueNoise = getNoise(tBlueNoise, st, uBlueNoiseCoordOffset);
+                    col += blueNoise.rgb * 0.05;
                     
                     gl_FragColor = vec4(col, 1.);
                 }

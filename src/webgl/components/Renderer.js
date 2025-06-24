@@ -9,7 +9,7 @@ class Renderer extends WebGLRenderer {
   constructor() {
     super({
       powerPreference: 'high-performance',
-      antialias: true,
+      antialias: false, // Disable if postfx is enabled
       depth: true,
     });
 

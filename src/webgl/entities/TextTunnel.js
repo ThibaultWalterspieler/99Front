@@ -1,10 +1,9 @@
 import {
   AdditiveBlending,
-  BackSide,
   Color,
-  CylinderGeometry,
   Mesh,
   Object3D,
+  PlaneGeometry,
   RepeatWrapping,
   ShaderMaterial,
   Vector2,
@@ -31,7 +30,7 @@ const PARAMS = {
   },
 };
 
-const geometry = new CylinderGeometry(8, 8, 20, 64);
+const geometry = new PlaneGeometry(WebGLStore.viewport.width, WebGLStore.viewport.height, 1, 1);
 
 export default class TextureTunnel extends Object3D {
   constructor(options) {
@@ -55,6 +54,7 @@ export default class TextureTunnel extends Object3D {
         uTime: { value: 0 },
         uResolution: { value: new Vector2(WebGLStore.viewport.width, WebGLStore.viewport.height) },
         tTexture: { value: texture },
+        uCellScale: { value: new Vector2(1, 1) },
       },
       vertexShader: `
                 varying vec2 vUv;
@@ -67,18 +67,8 @@ export default class TextureTunnel extends Object3D {
       fragmentShader: `
                 uniform float uTime;
                 uniform vec2 uResolution;
-                uniform float uIterations;
-                uniform float uScale;
-                uniform float uSpeed;
                 uniform sampler2D tTexture;
-                uniform float uAlpha;
-                // Cellular noise controls
-                uniform float uCellScale;
-                uniform float uTimeScale;
-                uniform float uThresholdMin;
-                uniform float uThresholdMax;
-                uniform float uTransitionWidth;
-                uniform float uAnimationOffset;
+                uniform vec2 uCellScale;
 
                 varying vec2 vUv;
 
@@ -105,141 +95,23 @@ export default class TextureTunnel extends Object3D {
                     return fract(fract(uv / mys) * uv);
                 }
 
-                vec3 hash(vec3 p) {
-                    return fract(sin(vec3(dot(p, vec3(1.0, 57.0, 113.0)),
-                                            dot(p, vec3(57.0, 113.0, 1.0)),
-                                            dot(p, vec3(113.0, 1.0, 57.0)))) *
-                                43758.5453);
-                }
-
-                float voronoi2d(const in vec2 point) {
-                    vec2 p = floor(point);
-                    vec2 f = fract(point);
-                    float res = 0.0;
-                    for (int j = -1; j <= 1; j++) {
-                        for (int i = -1; i <= 1; i++) {
-                        vec2 b = vec2(i, j);
-                        vec2 r = vec2(b) - f + rhash(p + b);
-                        res += 1. / pow(dot(r, r), 8.);
-                        }
-                    }
-                    return pow(1. / res, 0.0625);
-                }
-
-                const int samples = 35,
-                        LOD = 2,         // gaussian done on MIPmap at scale LOD
-                        sLOD = 1 << LOD; // tile size = 2^LOD
-                const float sigma = float(samples) * .25;
-
-                float gaussian(vec2 i) {
-                    return exp( -.5* dot(i/=sigma,i) ) / ( 6.28 * sigma*sigma );
-                }
-
-                vec4 blur(sampler2D sp, vec2 U, vec2 scale) {
-                    vec4 O = vec4(0);  
-                    int s = samples/sLOD;
-                    
-                    for ( int i = 0; i < s*s; i++ ) {
-                        vec2 d = vec2(i%s, i/s)*float(sLOD) - float(samples)/2.;
-                        O += gaussian(d) * textureLod( sp, U + scale * d , float(LOD) );
-                    }
-                    
-                    return O / O.a;
-                }
-
-
-                // AshimaOptim https://www.shadertoy.com/view/Xd3GRf
-                vec4 permute(vec4 x) { return mod(((x*34.)+1.)*x, 289.); }
-                    float snoise(in vec3 v){
-                    const vec2 C = vec2(0.16666666666,0.33333333333);
-                    const vec4 D = vec4(0,.5,1,2);
-                    vec3 i  = floor(C.y*(v.x+v.y+v.z) + v);
-                    vec3 x0 = C.x*(i.x+i.y+i.z) + (v - i);
-                    vec3 g = step(x0.yzx, x0);
-                    vec3 l = (1. - g).zxy;
-                    vec3 i1 = min( g, l );
-                    vec3 i2 = max( g, l );
-                    vec3 x1 = x0 - i1 + C.x;
-                    vec3 x2 = x0 - i2 + C.y;
-                    vec3 x3 = x0 - D.yyy;
-                    i = mod(i,289.);
-                    vec4 p = permute( permute( permute( i.z + vec4(0., i1.z, i2.z, 1.)) + i.y + vec4(0., i1.y, i2.y, 1.))+ i.x + vec4(0., i1.x, i2.x, 1.));
-                    vec3 ns = .142857142857 * D.wyz - D.xzx;
-                    vec4 j = -49. * floor(p * ns.z * ns.z) + p;
-                    vec4 x_ = floor(j * ns.z);
-                    vec4 x = x_ * ns.x + ns.yyyy;
-                    vec4 y = floor(j - 7. * x_ ) * ns.x + ns.yyyy;
-                    vec4 h = 1. - abs(x) - abs(y);
-                    vec4 b0 = vec4( x.xy, y.xy );
-                    vec4 b1 = vec4( x.zw, y.zw );
-                    vec4 sh = -step(h, vec4(0.));
-                    vec4 a0 = b0.xzyw + (floor(b0)*2.+ 1.).xzyw*sh.xxyy;
-                    vec4 a1 = b1.xzyw + (floor(b1)*2.+ 1.).xzyw*sh.zzww;
-                    vec3 p0 = vec3(a0.xy,h.x);
-                    vec3 p1 = vec3(a0.zw,h.y);
-                    vec3 p2 = vec3(a1.xy,h.z);
-                    vec3 p3 = vec3(a1.zw,h.w);
-                    vec4 norm = inversesqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2, p2), dot(p3,p3)));
-                    p0 *= norm.x;
-                    p1 *= norm.y;
-                    p2 *= norm.z;
-                    p3 *= norm.w;
-                    vec4 m = max(.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.);
-                    return .5 + 12. * dot( m * m * m, vec4( dot(p0,x0), dot(p1,x1),dot(p2,x2), dot(p3,x3) ) );
-                }
-
-                float range(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
-                    vec3 sub = vec3(oldValue, newMax, oldMax) - vec3(oldMin, newMin, oldMin);
-                    return sub.x * sub.y / sub.z + newMin;
-                }
-
                 void main() {
+                    vec2 st = gl_FragCoord.xy / uResolution;
                     vec2 uv = vUv;
 
-                    // Generate cellular noise with time-based variation
-                    vec2 cellCoord = uv * uCellScale;
-                    float timeOffset = uTime * uTimeScale + uAnimationOffset;
-                    
-                    // Create multiple layers of cellular noise for more complex patterns
-                    float cellNoise1 = voronoi2d(cellCoord + timeOffset);
-                    float cellNoise2 = voronoi2d(cellCoord * 1.5 + timeOffset * 0.7);
-                    
-                    // Combine noise layers for more variety
-                    float combinedNoise = (cellNoise1 + cellNoise2 * 0.5) / 1.5;
-                    
-                    // Add time-based oscillation to create appearing/disappearing effect
-                    float timeOscillation = sin(uTime * 0.5 + combinedNoise * 6.28) * 0.5 + 0.5;
-                    float animatedNoise = mix(combinedNoise, timeOscillation, 0.3);
-                    
-                    // Create precise alpha transitions
-                    float threshold = mix(uThresholdMin, uThresholdMax, 
-                        sin(uTime * 0.3 + cellCoord.x + cellCoord.y) * 0.5 + 0.5);
-                    
-                    // Apply smooth transitions with controlled width
-                    float alphaTransition = smoothstep(
-                        threshold - uTransitionWidth * 0.5,
-                        threshold + uTransitionWidth * 0.5,
-                        animatedNoise
-                    );
-                    
-                    // Add subtle randomness to prevent uniform patterns
-                    vec2 randomSeed = floor(cellCoord) + 157.0;
-                    float randomOffset = fract(sin(dot(randomSeed, vec2(12.9898, 78.233))) * 43758.5453);
-                    alphaTransition *= (0.8 + randomOffset * 0.4);
+                    vec2 diffuseSize = vec2(textureSize(tTexture, 0));
+                    vec2 textureOffset = vec2(0.5, 0.5) - 1.0;
+                    vec4 diffuse = coverTexture(tTexture, diffuseSize, st + textureOffset, uResolution);
 
-                    // TODO: Fix texture on small resolutions
-                    vec2 textureSize = vec2(1024.0, 1024.0);
-                    vec4 diffuse = coverTexture(tTexture, textureSize, vec2(1.0 - uv.x + uTime, uv.y - uTime * 2.0) * 5.0, uResolution);
 
-                    // Apply the controlled alpha
-                    diffuse.a = alphaTransition;
 
-                    gl_FragColor = vec4(diffuse.rgb, diffuse.a);
+                    gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
                 }
             `,
       transparent: true,
+      depthWrite: false,
+      depthTest: false,
       blending: AdditiveBlending,
-      side: BackSide,
     });
 
     this.mesh = new Mesh(geometry, material);
@@ -256,7 +128,8 @@ export default class TextureTunnel extends Object3D {
 
   onResize() {
     const { uResolution } = this.mesh.material.uniforms;
-    uResolution.value.set(WebGLStore.viewport.width, WebGLStore.viewport.height);
+    const { width, height } = WebGLStore.viewport;
+    uResolution.value.set(width, height);
   }
 
   addDebug() {
