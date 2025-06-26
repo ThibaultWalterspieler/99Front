@@ -11,6 +11,7 @@ import { GammaCorrectionShader } from 'three/addons/shaders/GammaCorrectionShade
 import Camera from '@99Stud/webgl/components/Camera';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
+import { BloomPass } from '@99Stud/webgl/passes/bloomPass';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { postProcessingFolder } from '@99Stud/webgl/utils/debugger';
 
@@ -49,6 +50,16 @@ const PARAMS = {
       rings: 2,
       samples: 16,
     },
+  },
+  bloom: {
+    enabled: false,
+    brightness: 0.3,
+    contrast: 0,
+    saturation: 0,
+    strength: 0.8,
+    radius: 0,
+    threshold: 0,
+    mixFactor: 0.28,
   },
   brightnessContrast: {
     enabled: false,
@@ -91,6 +102,7 @@ class PostProcessing {
 
     this.setupSMAA(w, h);
     this.setupGTAO();
+    this.setupBloomPass();
     this.setupBrightnessContrast();
     this.setupToneMapping();
     this.setupGammaCorrection();
@@ -98,10 +110,12 @@ class PostProcessing {
     this.composer.addPass(this.renderPass);
     this.composer.addPass(this.smaaPass);
     this.composer.addPass(this.gtaoPass);
+    this.composer.addPass(this.bloomPass);
     this.composer.addPass(this.brightnessContrastPass);
     this.composer.addPass(this.toneMappingPass);
     this.composer.addPass(this.gammaCorrectionPass);
     this.composer.addPass(this.outputPass);
+
     this.composer.setSize(w, h);
     this.composer.setPixelRatio(dpr);
 
@@ -119,6 +133,8 @@ class PostProcessing {
     this.toneMappingFolder = postProcessingFolder.addFolder({ title: 'Tone Mapping Pass' });
 
     this.gammaCorrectionFolder = postProcessingFolder.addFolder({ title: 'Gamma Correction Pass' });
+
+    this.bloomFolder = postProcessingFolder.addFolder({ title: 'Bloom Pass' });
   }
 
   setupSMAA(w, h) {
@@ -227,6 +243,44 @@ class PostProcessing {
     this.gammaCorrectionFolder.addBinding(PARAMS.gammaCorrection, 'enabled').on('change', (ev) => {
       this.gammaCorrectionPass.enabled = ev.value;
     });
+  }
+
+  setupBloomPass() {
+    this.bloomPass = new BloomPass();
+    this.bloomPass.enabled = PARAMS.bloom.enabled;
+
+    if (!isWebGLDebug) return;
+
+    this.bloomFolder.addBinding(PARAMS.bloom, 'enabled').on('change', (ev) => {
+      this.bloomPass.enabled = ev.value;
+    });
+
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'brightness', { min: 0, max: 2, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.render.brightness = ev.value;
+      });
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'contrast', { min: 0, max: 2, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.render.contrast = ev.value;
+      });
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'saturation', { min: 0, max: 2, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.render.saturation = ev.value;
+      });
+
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'strength', { min: 0, max: 2, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.composite.strength = ev.value;
+      });
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'mixFactor', { min: 0, max: 1, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.composite.mixFactor = ev.value;
+      });
   }
 
   onResize() {
