@@ -5,6 +5,7 @@ import {
   Object3D,
   ShaderMaterial,
   SphereGeometry,
+  SRGBColorSpace,
   Vector2,
   Vector3,
 } from 'three';
@@ -32,38 +33,29 @@ export default class Background extends Object3D {
   }
 
   init() {
+    const texture = getAsset('tex-gradient');
+    texture.colorSpace = SRGBColorSpace;
     const material = new ShaderMaterial({
       uniforms: {
         uTime: { value: 0 },
-        tGrad: { value: getAsset('tex-gradient') },
+        tGrad: { value: texture },
         tBlueNoise: { value: getAsset('tex-bluenoise') },
         uResolution: { value: new Vector3() },
-        uColorInner: { value: new Color(this.settings.colorInner).convertLinearToSRGB() },
-        uColorMid: { value: new Color(this.settings.colorMid).convertLinearToSRGB() },
-        uColorOuter: { value: new Color(this.settings.colorOuter).convertLinearToSRGB() },
-        uScale: { value: 0 },
+        uColorInner: { value: new Color(this.settings.colorInner) },
+        uColorMid: { value: new Color(this.settings.colorMid) },
+        uColorOuter: { value: new Color(this.settings.colorOuter) },
         uGradientScale1: { value: this.settings.gradientScale1 },
         uGradientScale2: { value: this.settings.gradientScale2 },
         uGradientScale3: { value: this.settings.gradientScale3 },
         uGradientSpeed: { value: this.settings.gradientSpeed },
         uBlurriness: { value: this.settings.blurriness },
-        uBlueNoiseTexelSize: { value: new Vector2(1 / 8, 1 / 8) },
-        uBlueNoiseCoordOffset: { value: new Vector2(0, 0) },
+        uBlueNoiseCoordOffset: { value: new Vector2(0.05, 0.05) },
       },
       vertexShader: `
-                varying vec4 vMvPos;
-                varying vec3 vWorldPos;
-                varying vec3 vViewDirection;
                 varying vec2 vUv;
 
                 void main() {
-                    vec3 worldPos = (modelMatrix * vec4(position, 1.0)).xyz;
-                    vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-                    gl_Position = projectionMatrix * mvPos;
-
-                    vMvPos = mvPos;
-                    vWorldPos = worldPos;
-                    vViewDirection = normalize(cameraPosition - worldPos);
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
                     vUv = uv;
                 }
             `,
@@ -77,29 +69,20 @@ export default class Background extends Object3D {
                 uniform vec3 uColorInner;
                 uniform vec3 uColorMid;
                 uniform vec3 uColorOuter;
-                uniform vec2 uBlueNoiseTexelSize;
                 uniform vec2 uBlueNoiseCoordOffset;
-                uniform float uScale;
                 uniform float uBlurriness;
                 uniform float uGradientScale1;
                 uniform float uGradientScale2;
                 uniform float uGradientScale3;
                 uniform float uGradientSpeed;
 
-                varying vec4 vMvPos;
-                varying vec3 vWorldPos;
-                varying vec3 vViewDirection;
                 varying vec2 vUv;
 
                 #define PI 3.14159265
 
-                vec3 getBlueNoiseStatic(vec2 coord) {
-                    return texture2D(tBlueNoise, coord * uBlueNoiseTexelSize).rgb;
-                }
-
-                float range(float oldValue, float oldMin, float oldMax, float newMin, float newMax) {
-                    vec3 sub = vec3(oldValue, newMax, oldMax) - vec3(oldMin, newMin, oldMin);
-                    return sub.x * sub.y / sub.z + newMin;
+                vec4 getNoise(sampler2D tex, vec2 uv, vec2 offset) {
+                    float invSize = 1.0/float(textureSize(tex, 0).x);
+                    return texture(tex, uv*invSize+offset);
                 }
 
                 vec4 coverTexture(sampler2D tex, vec2 imgSize, vec2 ouv, vec2 res) {
@@ -112,54 +95,6 @@ export default class Background extends Object3D {
                     vec2 uv = ouv * s / new + offset;
 
                     return texture2D(tex, uv);
-                }
-
-
-                float SDF_rounded_box( in vec2 p, in vec2 b, in vec4 r )
-                {
-                    r.xy = (p.x>0.0)?r.xy : r.zw;
-                    r.x  = (p.y>0.0)?r.x  : r.y;
-                    vec2 q = abs(p)-b+r.x;
-                    return min(max(q.x,q.y),0.0) + length(max(q,0.0)) - r.x;
-                }
-
-                float SDF_Circle( vec2 p, float r ) { return length(p) - r; }
-
-
-                const int samples = 35,
-                        LOD = 2,         // gaussian done on MIPmap at scale LOD
-                        sLOD = 1 << LOD; // tile size = 2^LOD
-                const float sigma = float(samples) * .25;
-
-                float gaussian(vec2 i) {
-                    return exp( -.5* dot(i/=sigma,i) ) / ( 6.28 * sigma*sigma );
-                }
-
-                vec4 blur(sampler2D sp, vec2 U, vec2 scale) {
-                    vec4 O = vec4(0);  
-                    int s = samples/sLOD;
-                    
-                    for ( int i = 0; i < s*s; i++ ) {
-                        vec2 d = vec2(i%s, i/s)*float(sLOD) - float(samples)/2.;
-                        O += gaussian(d) * textureLod( sp, U + scale * d , float(LOD) );
-                    }
-                    
-                    return O / O.a;
-                }
-
-                vec2 scaleUV(vec2 uv, vec2 scale, vec2 origin) {
-                    vec2 st = uv - origin;
-                    st /= scale;
-                    return st + origin;
-                }
-
-                vec2 rotateUV(vec2 uv, float rotation, vec2 mid) {
-                    float cosAngle = cos(rotation);
-                    float sinAngle = sin(rotation);
-                    return vec2(
-                        cosAngle * (uv.x - mid.x) + sinAngle * (uv.y - mid.y) + mid.x,
-                        cosAngle * (uv.y - mid.y) - sinAngle * (uv.x - mid.x) + mid.y
-                    );
                 }
 
                 // AshimaOptim https://www.shadertoy.com/view/Xd3GRf
@@ -207,26 +142,9 @@ export default class Background extends Object3D {
                     vec2 st = gl_FragCoord.xy / uResolution.xy;
                     vec2 uv = (2.0*gl_FragCoord.xy-uResolution.xy)/uResolution.y;
                     vec2 pixelUnit = 1. / uResolution.xy;
-                    float px = pixelUnit.y;
-                    vec2 shape_pos = vec2(0., .1);
-                    
-                    float scaleT = range(snoise(vec3(1., 0., uTime * .2)), 0., 1., 1., 1.4);
-                    float scaleRect = range(snoise(vec3(uv * 2., uTime * .2)), 0., 1., 1., 1.2);
 
                     // Sample base gradient with higher precision sampling
                     vec3 col = coverTexture(tGrad, vec2(1920., 1080.), st, uResolution.xy).rgb;
-                    
-                    // Apply blur more carefully to preserve gradient smoothness
-                    vec4 blurred = blur(tGrad, st, vec2(1.0, 1.0) * uBlurriness);
-                    col = mix(col, blurred.rgb, 1.0);
-
-                    // Strong temporal + spatial dithering
-                    vec3 spatialDither = getBlueNoiseStatic(gl_FragCoord.xy) - 0.5;
-                    vec3 temporalDither = getBlueNoiseStatic(gl_FragCoord.xy + uTime * 1000.0) - 0.5;
-                    vec3 combinedDither = (spatialDither + temporalDither * 0.5) * (10.0/255.0);
-                    
-                    // Apply strong dithering early
-                    col += combinedDither;
                     
                     // Smooth noise application with heavy filtering
                     float noise = snoise(vec3(uv * uGradientScale1, uTime * uGradientSpeed));
@@ -246,12 +164,10 @@ export default class Background extends Object3D {
                     col = mix(col, uColorOuter, noiseThird * 0.45); // Reduced
                     col = mix(col, uColorMid, noiseSecond * 0.4); // Reduced
                     
-                    // Final aggressive dithering to break any remaining quantization
-                    col += combinedDither * 1.5;
-                    
-                    // Additional high-frequency dithering
-                    float highFreqDither = fract(sin(dot(gl_FragCoord.xy, vec2(12.9898, 78.233))) * 43758.5453) - 0.5;
-                    col += vec3(highFreqDither * (0.5/255.0));
+                    // Blue noise dithering with very small magnitude to prevent banding
+                    vec4 blueNoise = getNoise(tBlueNoise, st, uBlueNoiseCoordOffset);
+                    vec3 dither = (blueNoise.rgb - 0.5) * (1.0/255.0); // Center around 0, ±0.5 levels
+                    col += dither;
                     
                     gl_FragColor = vec4(col, 1.);
                 }
@@ -267,12 +183,6 @@ export default class Background extends Object3D {
   addDebug() {
     if (!sceneFolder) return;
     const folder = sceneFolder.addFolder({ title: 'Background' });
-
-    folder
-      .addBinding(this.settings, 'blurriness', { min: 0, max: 1, step: 0.01 })
-      .on('change', (ev) => {
-        this.mesh.material.uniforms.uBlurriness.value = ev.value;
-      });
 
     folder
       .addBinding(this.settings, 'gradientScale1', { min: 0, max: 5, step: 0.001 })
@@ -299,15 +209,15 @@ export default class Background extends Object3D {
       });
 
     folder.addBinding(this.settings, 'colorInner', { view: 'color' }).on('change', (ev) => {
-      this.mesh.material.uniforms.uColorInner.value = new Color(ev.value).convertLinearToSRGB();
+      this.mesh.material.uniforms.uColorInner.value = new Color(ev.value);
     });
 
     folder.addBinding(this.settings, 'colorMid', { view: 'color' }).on('change', (ev) => {
-      this.mesh.material.uniforms.uColorMid.value = new Color(ev.value).convertLinearToSRGB();
+      this.mesh.material.uniforms.uColorMid.value = new Color(ev.value);
     });
 
     folder.addBinding(this.settings, 'colorOuter', { view: 'color' }).on('change', (ev) => {
-      this.mesh.material.uniforms.uColorOuter.value = new Color(ev.value).convertLinearToSRGB();
+      this.mesh.material.uniforms.uColorOuter.value = new Color(ev.value);
     });
   }
 

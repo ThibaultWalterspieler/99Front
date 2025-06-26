@@ -1,6 +1,7 @@
 import { ThreePerf } from 'three-perf';
 
 import Camera from '@99Stud/webgl/components/Camera';
+import PostProcessing from '@99Stud/webgl/components/PostProcessing';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
 import Emitter from '@99Stud/webgl/events/Emitter';
@@ -17,6 +18,8 @@ export default class WebGLApp {
     if (!wrapper || !isBrowser) return;
     this.wrapper = wrapper;
     this.wrapper.appendChild(Renderer.domElement);
+
+    PostProcessing.init();
 
     Camera.init();
     Scene.init();
@@ -56,7 +59,9 @@ export default class WebGLApp {
 
     this.perf?.begin?.();
 
-    Renderer?.render?.(Scene, Camera);
+    // Renderer?.render?.(Scene, Camera);
+
+    PostProcessing?.render?.();
 
     this.perf?.end?.();
 
@@ -68,5 +73,6 @@ export default class WebGLApp {
     Camera?.onResize?.();
 
     Renderer?.onResize?.();
+    PostProcessing?.onResize?.();
   };
 }
