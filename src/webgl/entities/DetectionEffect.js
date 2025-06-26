@@ -1,6 +1,7 @@
 import {
   DoubleSide,
   InstancedMesh,
+  LinearFilter,
   Matrix4,
   Object3D,
   PlaneGeometry,
@@ -9,6 +10,9 @@ import {
   Vector3,
 } from 'three';
 import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
+
+import { sceneFolder } from '@99Stud/webgl/utils/debugger';
+import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 
 // TODO:
 // - For each sampled position, generate a particle
@@ -20,9 +24,7 @@ import { MeshSurfaceSampler } from 'three/addons/math/MeshSurfaceSampler.js';
 const PARAMS = {
   particles: {
     count: 100,
-    showSquares: true,
-    showLines: false,
-    showData: false,
+    showSquares: false,
   },
 };
 
@@ -47,6 +49,7 @@ class DetectionEffect extends Object3D {
     // this.sampleRandomPoint();
 
     this.createParticles();
+    this.addDebug();
   }
 
   sampleRandomPoint() {
@@ -74,21 +77,30 @@ class DetectionEffect extends Object3D {
       positions[i * 3 + 1] = tempPosition.y;
       positions[i * 3 + 2] = tempPosition.z;
 
-      scales[i] = Math.random() * 0.5 + 0.5;
+      scales[i] = Math.random() * 0.25 + 0.02;
     }
 
-    // Create instanced geometry - use standard approach
-    const geometry = new PlaneGeometry(0.1, 0.1);
+    const geometry = new PlaneGeometry(1, 1);
+
+    const squareTexture = getAsset('tex-detection-square');
+    squareTexture.minFilter = LinearFilter;
+    squareTexture.magFilter = LinearFilter;
+
+    const blueNoiseTexture = getAsset('tex-bluenoise');
+    blueNoiseTexture.minFilter = LinearFilter;
+    blueNoiseTexture.magFilter = LinearFilter;
 
     const material = new ShaderMaterial({
       vertexShader: `
         varying vec2 vUv;
+        varying vec3 vWorldPosition;
 
         void main() {
           vUv = uv;
           
           // Get the world position from instance matrix
           vec4 worldPosition = modelMatrix * instanceMatrix * vec4(0.0, 0.0, 0.0, 1.0);
+          vWorldPosition = worldPosition.xyz;
           
           // Calculate billboard rotation to face camera
           vec3 look = normalize(cameraPosition - worldPosition.xyz);
@@ -117,20 +129,37 @@ class DetectionEffect extends Object3D {
       fragmentShader: `
         uniform float time;
         varying vec2 vUv;
+        varying vec3 vWorldPosition;
+        uniform sampler2D tSquare;
+        uniform sampler2D tBlueNoise;
+        uniform float uAlphaFactor;
 
         void main() {
-          vec2 center = vUv - 0.5;
-          float dist = max(abs(center.x), abs(center.y));
-          float square = step(dist, 0.4);
+
+          // 1:1 texture
+          vec4 square = texture2D(tSquare, vUv);
+
+          // Use world position to sample blue noise - create unique coordinates per instance
+          vec2 noiseCoord = fract(vWorldPosition.yy * 10.0 + time);
           
-          float noise = sin(time * 2.0 + gl_FragCoord.x * 0.1 + gl_FragCoord.y * 0.1) * 0.5 + 0.5;
-          float alpha = square * (0.5 + noise * 0.5);
-          
-          gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
+          // Sample blue noise texture
+          float noiseValue = texture2D(tBlueNoise, noiseCoord).r;
+
+          float threshold = 0.76;
+          float alternatingAlpha = noiseValue > threshold ? 1.0 : 0.0;
+
+          float alpha = alternatingAlpha * square.g;
+
+          alpha *= uAlphaFactor;
+
+          gl_FragColor = vec4(1.0, 1.0, 1.0, alpha);
         }
       `,
       uniforms: {
         time: { value: 0.0 },
+        tSquare: { value: squareTexture },
+        tBlueNoise: { value: blueNoiseTexture },
+        uAlphaFactor: { value: this.settings.particles.showSquares ? 1.0 : 0.0 },
       },
       transparent: true,
       depthTest: false,
@@ -157,13 +186,20 @@ class DetectionEffect extends Object3D {
     this.mesh = mesh;
   }
 
-  update(time, camera) {
-    if (this.mesh && this.mesh.material.uniforms) {
-      this.mesh.material.uniforms.time.value = time * 0.001;
+  addDebug() {
+    const detectionFolder = sceneFolder.addFolder({ title: 'AI Detection Effect' });
 
-      if (camera) {
-        camera.getWorldPosition(this.mesh.material.uniforms.cameraPosition.value);
-      }
+    detectionFolder
+      .addBinding(this.settings.particles, 'showSquares', { label: 'show squares' })
+      .on('change', (ev) => {
+        this.mesh.material.uniforms.uAlphaFactor.value = ev.value ? 1.0 : 0.0;
+      });
+  }
+
+  onTick({ time }) {
+    if (this.mesh && this.mesh.material.uniforms) {
+      // Update time much less frequently to slow down the effect
+      this.mesh.material.uniforms.time.value = Math.floor(time * 0.001) * 0.0001;
     }
   }
 }

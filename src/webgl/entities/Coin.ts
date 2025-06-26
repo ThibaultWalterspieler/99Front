@@ -516,6 +516,12 @@ export default class Coin extends Object3D {
       this.coin.position.y = Math.sin(time * 1.2) * 0.005;
     }
 
+    for (const child of this.coin.children) {
+      if (child instanceof DetectionEffect) {
+        child.onTick({ time });
+      }
+    }
+
     this.uniforms.uTime.value += 0.01 * rafDamp;
   }
 

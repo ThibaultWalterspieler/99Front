@@ -39,7 +39,7 @@ const Home: FC = () => {
         </nav>
         <div
           className={clsx(
-            'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
+            'col-start-1 row-start-3 hidden md:col-start-2 md:row-start-2',
             'flex items-center justify-center gap-3',
             'text-white select-none',
           )}

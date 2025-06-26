@@ -5,6 +5,7 @@ const textures = {
   normal: '/assets/textures/normal.png',
   bluenoise: '/assets/textures/bluenoise.png',
   '99stud': '/assets/textures/99stud.png',
+  'detection-square': '/assets/textures/detection-square.png',
 };
 
 const hdrs = {
@@ -62,6 +63,10 @@ export const assetConfigs = {
       type: 'texture',
       tiled: true,
       flipY: false,
+    },
+    'tex-detection-square': {
+      type: 'texture',
+      flipY: true,
     },
   },
 };
