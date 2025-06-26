@@ -284,22 +284,21 @@ export default class Coin extends Object3D {
   // - Based on the direction lerp the values accordingly in order to prevent multiple 360° rotations
 
   onDragStart = async () => {
-    const targetScale =
-      WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md
-        ? this.settings.scale * 1.2
-        : this.settings.scale * 1.05;
+    const targetScale = this.settings.scale * 1.25;
 
     this.initialRotationY = this.coin.rotation.y;
 
     this.returnRotationTween.kill();
 
-    await gsap.to(this.coin.scale, {
-      x: targetScale,
-      y: targetScale,
-      z: targetScale,
-      duration: 1.0,
-      ease: 'expo.inOut',
-    });
+    if (!WebGLStore.deviceSettings.isMobile && WebGLStore.viewport.breakpoints.md) {
+      await gsap.to(this.coin.scale, {
+        x: targetScale,
+        y: targetScale,
+        z: targetScale,
+        duration: 1.0,
+        ease: 'expo.inOut',
+      });
+    }
   };
 
   onDrag = ({ distance }: { distance: { x: number; y: number } }) => {
