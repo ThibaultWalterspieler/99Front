@@ -5,10 +5,9 @@ import PostProcessing from '@99Stud/webgl/components/PostProcessing';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
 import Emitter from '@99Stud/webgl/events/Emitter';
-import { DEBUG_ENABLED } from '@99Stud/webgl/store/constants';
 
 const isBrowser = typeof window !== 'undefined';
-const isDev = process.env.NODE_ENV === 'development';
+const isWebGLDebug = process.env.NEXT_PUBLIC_WEBGL_DEBUG === 'true';
 
 export default class WebGLApp {
   private wrapper?: HTMLElement;
@@ -24,7 +23,7 @@ export default class WebGLApp {
     Camera.init();
     Scene.init();
 
-    if (isDev && DEBUG_ENABLED) this.setupPerfs();
+    if (isWebGLDebug) this.setupPerfs();
 
     this.setupEvents();
     this.onResize();

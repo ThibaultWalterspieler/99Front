@@ -368,6 +368,7 @@ export default class Coin extends Object3D {
       typeof (sceneFolderTyped as { addFolder?: unknown }).addFolder !== 'function'
     )
       return;
+
     const coinFolder = (
       sceneFolderTyped as { addFolder: (opts: { title: string }) => unknown }
     ).addFolder({ title: 'Coin' }) as {

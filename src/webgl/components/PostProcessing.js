@@ -20,6 +20,8 @@ import { postProcessingFolder } from '@99Stud/webgl/utils/debugger';
 // import { LUTPass } from 'three/addons/postprocessing/LUTPass.js';
 // import { LUTCubeLoader } from 'three/addons/loaders/LUTCubeLoader.js';
 
+const isWebGLDebug = process.env.NEXT_PUBLIC_WEBGL_DEBUG === 'true';
+
 const PARAMS = {
   smaa: {
     enabled: false,
@@ -65,6 +67,8 @@ const PARAMS = {
 class PostProcessing {
   constructor() {
     this.initialized = false;
+
+    if (isWebGLDebug) this.addDebugFolders();
   }
 
   async init() {
@@ -104,29 +108,44 @@ class PostProcessing {
     this.initialized = true;
   }
 
+  addDebugFolders() {
+    this.smaaFolder = postProcessingFolder.addFolder({ title: 'SMAA Pass' });
+    this.gtaoFolder = postProcessingFolder.addFolder({ title: 'GTAO Pass' });
+
+    this.brightnessContrastFolder = postProcessingFolder.addFolder({
+      title: 'Brightness Contrast Pass',
+    });
+
+    this.toneMappingFolder = postProcessingFolder.addFolder({ title: 'Tone Mapping Pass' });
+
+    this.gammaCorrectionFolder = postProcessingFolder.addFolder({ title: 'Gamma Correction Pass' });
+  }
+
   setupSMAA(w, h) {
     this.smaaPass = new SMAAPass(w, h);
+    this.smaaPass.enabled = PARAMS.smaa.enabled;
 
-    const smaaFolder = postProcessingFolder.addFolder({ title: 'SMAA Pass' });
+    if (!isWebGLDebug) return;
 
-    smaaFolder.addBinding(PARAMS.smaa, 'quality').on('change', (ev) => {
+    this.smaaFolder.addBinding(PARAMS.smaa, 'quality').on('change', (ev) => {
       this.smaaPass.quality = ev.value;
     });
-    smaaFolder.addBinding(PARAMS.smaa, 'enabled').on('change', (ev) => {
+    this.smaaFolder.addBinding(PARAMS.smaa, 'enabled').on('change', (ev) => {
       this.smaaPass.enabled = ev.value;
     });
   }
 
   setupGTAO() {
     this.gtaoPass = new GTAOPass(Scene, Camera);
+    this.gtaoPass.enabled = PARAMS.gtao.enabled;
 
-    const gtaoFolder = postProcessingFolder.addFolder({ title: 'GTAO Pass' });
+    if (!isWebGLDebug) return;
 
-    gtaoFolder.addBinding(PARAMS.gtao, 'enabled').on('change', (ev) => {
+    this.gtaoFolder.addBinding(PARAMS.gtao, 'enabled').on('change', (ev) => {
       this.gtaoPass.enabled = ev.value;
     });
 
-    gtaoFolder
+    this.gtaoFolder
       .addBinding(PARAMS.gtao, 'output', {
         options: {
           Default: GTAOPass.OUTPUT.Default,
@@ -140,39 +159,42 @@ class PostProcessing {
       .on('change', (ev) => {
         this.gtaoPass.output = ev.value;
       });
-    gtaoFolder
+    this.gtaoFolder
       .addBinding(PARAMS.gtao, 'blendIntensity', { min: 0, max: 1, step: 0.01 })
       .on('change', (ev) => {
         this.gtaoPass.blendIntensity = ev.value;
       });
 
-    gtaoFolder
+    this.gtaoFolder
       .addBinding(PARAMS.gtao.ao, 'samples', { min: 1, max: 64, step: 1 })
       .on('change', () => {
         this.gtaoPass.updateGtaoMaterial(PARAMS.gtao.ao);
       });
-    gtaoFolder.addBinding(PARAMS.gtao.ao, 'radius', { min: 0.0, max: 1.0 }).on('change', () => {
-      this.gtaoPass.updateGtaoMaterial(PARAMS.gtao.ao);
-    });
+    this.gtaoFolder
+      .addBinding(PARAMS.gtao.ao, 'radius', { min: 0.0, max: 1.0 })
+      .on('change', () => {
+        this.gtaoPass.updateGtaoMaterial(PARAMS.gtao.ao);
+      });
   }
 
   setupBrightnessContrast() {
     this.brightnessContrastPass = new ShaderPass(BrightnessContrastShader);
-
     this.brightnessContrastPass.enabled = PARAMS.brightnessContrast.enabled;
 
-    const bcFolder = postProcessingFolder.addFolder({ title: 'Brightness Contrast Pass' });
+    if (!isWebGLDebug) return;
 
-    bcFolder.addBinding(PARAMS.brightnessContrast, 'enabled').on('change', (ev) => {
-      this.brightnessContrastPass.enabled = ev.value;
-    });
+    this.brightnessContrastFolder
+      .addBinding(PARAMS.brightnessContrast, 'enabled')
+      .on('change', (ev) => {
+        this.brightnessContrastPass.enabled = ev.value;
+      });
 
-    bcFolder
+    this.brightnessContrastFolder
       .addBinding(PARAMS.brightnessContrast, 'brightness', { min: -0.5, max: 0.5, step: 0.01 })
       .on('change', (ev) => {
         this.brightnessContrastPass.material.uniforms.brightness.value = ev.value;
       });
-    bcFolder
+    this.brightnessContrastFolder
       .addBinding(PARAMS.brightnessContrast, 'contrast', { min: 0, max: 0.5, step: 0.01 })
       .on('change', (ev) => {
         this.brightnessContrastPass.material.uniforms.contrast.value = ev.value;
@@ -181,16 +203,15 @@ class PostProcessing {
 
   setupToneMapping() {
     this.toneMappingPass = new ShaderPass(ACESFilmicToneMappingShader);
-
     this.toneMappingPass.enabled = PARAMS.toneMapping.enabled;
 
-    const tmFolder = postProcessingFolder.addFolder({ title: 'Tone Mapping Pass' });
+    if (!isWebGLDebug) return;
 
-    tmFolder.addBinding(PARAMS.toneMapping, 'enabled').on('change', (ev) => {
+    this.toneMappingFolder.addBinding(PARAMS.toneMapping, 'enabled').on('change', (ev) => {
       this.toneMappingPass.enabled = ev.value;
     });
 
-    tmFolder
+    this.toneMappingFolder
       .addBinding(PARAMS.toneMapping, 'exposure', { min: 0, max: 10, step: 0.01 })
       .on('change', (ev) => {
         this.toneMappingPass.material.uniforms.exposure.value = ev.value;
@@ -199,12 +220,11 @@ class PostProcessing {
 
   setupGammaCorrection() {
     this.gammaCorrectionPass = new ShaderPass(GammaCorrectionShader);
-
     this.gammaCorrectionPass.enabled = PARAMS.gammaCorrection.enabled;
 
-    const gcFolder = postProcessingFolder.addFolder({ title: 'Gamma Correction Pass' });
+    if (!isWebGLDebug) return;
 
-    gcFolder.addBinding(PARAMS.gammaCorrection, 'enabled').on('change', (ev) => {
+    this.gammaCorrectionFolder.addBinding(PARAMS.gammaCorrection, 'enabled').on('change', (ev) => {
       this.gammaCorrectionPass.enabled = ev.value;
     });
   }

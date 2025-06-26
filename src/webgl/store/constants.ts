@@ -1,7 +1,6 @@
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 
 export const CONTROLS_ENABLED = false;
-export const DEBUG_ENABLED = true;
 
 export const COIN_PARAMS = {
   debugPointer: false,
