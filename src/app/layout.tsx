@@ -24,6 +24,20 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: '99stud | Creative Independent Collective',
   description: '99stud is a creative independent collective that makes things happen.',
+  icons: [
+    {
+      rel: 'icon',
+      type: 'image/x-icon',
+      url: '/favicon.ico',
+      media: '(prefers-color-scheme: light)',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      url: '/favicon-dark.png',
+      media: '(prefers-color-scheme: dark)',
+    },
+  ],
   creator: '99stud',
   authors: [{ name: '99stud', url: 'https://99stud.com' }],
   publisher: '99stud',
