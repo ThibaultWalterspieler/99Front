@@ -56,10 +56,10 @@ const PARAMS = {
     brightness: 0.3,
     contrast: 0,
     saturation: 0,
-    strength: 0.8,
-    radius: 0,
-    threshold: 0,
-    mixFactor: 0.28,
+    strength: 0.1,
+    upRadius: 2,
+    downRadius: 3,
+    mixFactor: 0.38,
   },
   brightnessContrast: {
     enabled: false,
@@ -280,6 +280,18 @@ class PostProcessing {
       .addBinding(PARAMS.bloom, 'mixFactor', { min: 0, max: 1, step: 0.01 })
       .on('change', (ev) => {
         this.bloomPass.Settings.composite.mixFactor = ev.value;
+      });
+
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'upRadius', { min: 0, max: 10, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.render.upRadius = ev.value;
+      });
+
+    this.bloomFolder
+      .addBinding(PARAMS.bloom, 'downRadius', { min: 0, max: 10, step: 0.01 })
+      .on('change', (ev) => {
+        this.bloomPass.Settings.render.downRadius = ev.value;
       });
   }
 
