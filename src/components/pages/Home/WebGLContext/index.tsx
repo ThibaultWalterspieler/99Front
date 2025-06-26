@@ -9,6 +9,8 @@ import { loadManifest } from '@99Stud/webgl/utils/manifest/assetsLoader';
 import { manifest } from '@99Stud/webgl/utils/manifest/preloadManifest';
 import WebGLApp from '@99Stud/webgl/WebGLApp';
 
+import styles from './internal/WebGLContext.module.scss';
+
 interface Props {
   className?: string;
 }
@@ -52,9 +54,9 @@ export const WebGLContext: FC<Props> = ({ className }) => {
     <div
       className={clsx(
         className,
-        'webgl-wrapper',
+        styles['webgl-wrapper'],
         'overflow-hidden',
-        'pointer-events-none touch-none',
+        'pointer-events-none touch-none select-none',
       )}
       ref={webglWrapperRef}
       style={{

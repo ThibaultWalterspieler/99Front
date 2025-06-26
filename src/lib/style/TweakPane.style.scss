@@ -1,0 +1,50 @@
+.tp-dfwv {
+  width: 350px !important;
+}
+
+.tp-tabv_c {
+  max-height: 92vh;
+  overflow-y: auto !important;
+}
+
+.tp-tabv_c::-webkit-scrollbar {
+  display: none;
+}
+
+.tp-btnCopy {
+  position: absolute;
+  z-index: 1000;
+  right: 26px;
+  top: 2px;
+  background-color: rgb(35, 35, 35);
+  color: rgb(193, 193, 193);
+  font-weight: 400;
+  font-size: 14px;
+  height: var(--cnt-usz);
+  width: var(--cnt-usz);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 3px;
+  cursor: pointer;
+  border: none;
+  border-radius: 2px;
+
+  & .tp-btnCopy-copied {
+    display: none;
+  }
+
+  & .tp-btnCopy-copy {
+    display: block;
+  }
+
+  &.copied {
+    & .tp-btnCopy-copied {
+      display: block;
+    }
+
+    & .tp-btnCopy-copy {
+      display: none;
+    }
+  }
+}
