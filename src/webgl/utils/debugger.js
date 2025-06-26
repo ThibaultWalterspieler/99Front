@@ -2,9 +2,7 @@
 import gsap from 'gsap';
 import { Pane } from 'tweakpane';
 
-import { DEBUG_ENABLED } from '@99Stud/webgl/store/constants';
-
-const isDev = process.env.NODE_ENV === 'development';
+const isWebGLDebug = process.env.NEXT_PUBLIC_WEBGL_DEBUG === 'true';
 
 const SAFE_PADDING = 8;
 const state = {
@@ -27,7 +25,9 @@ let tweakContainer = null;
 let tweakWrapper = null;
 let tweakDragger = null;
 
-if (isDev) {
+if (isWebGLDebug) {
+  import('@lib/style/TweakPane.style.scss');
+
   tweak = new Pane();
   tweak.hidden = !DEBUG_ENABLED;
   tweakFolder = tweak.addFolder({ title: 'Debugger' });
@@ -115,7 +115,7 @@ function onDragUp() {
   tweakDragger.classList.remove('dragging');
 }
 
-if (typeof window !== 'undefined' && isDev) {
+if (typeof window !== 'undefined' && isWebGLDebug) {
   tweakDragger.addEventListener('mousedown', onDragDown);
   tweakDragger.addEventListener(
     'click',
