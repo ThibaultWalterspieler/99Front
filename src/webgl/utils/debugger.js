@@ -29,7 +29,7 @@ if (isWebGLDebug) {
   import('@lib/style/TweakPane.style.scss');
 
   tweak = new Pane();
-  tweak.hidden = !DEBUG_ENABLED;
+  tweak.hidden = false;
   tweakFolder = tweak.addFolder({ title: 'Debugger' });
   const tabs = tweakFolder.addTab({
     pages: [{ title: 'Renderer' }, { title: 'Scene' }, { title: 'PostProcessing' }],
