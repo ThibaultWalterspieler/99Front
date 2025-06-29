@@ -203,9 +203,9 @@ export default class Coin extends Object3D {
     );
     this.add(this.coin);
 
-    this.detectionEffect = new DetectionEffect();
-    this.coin.add(this.detectionEffect);
-    await this.detectionEffect.init();
+    // this.detectionEffect = new DetectionEffect();
+    // this.coin.add(this.detectionEffect);
+    // await this.detectionEffect.init();
 
     await this.transitionIn();
   }
@@ -516,11 +516,11 @@ export default class Coin extends Object3D {
       this.coin.position.y = Math.sin(time * 1.2) * 0.005;
     }
 
-    for (const child of this.coin.children) {
-      if (child instanceof DetectionEffect) {
-        child.onTick({ time });
-      }
-    }
+    // for (const child of this.coin.children) {
+    //   if (child instanceof DetectionEffect) {
+    //     child.onTick({ time });
+    //   }
+    // }
 
     this.uniforms.uTime.value += 0.01 * rafDamp;
   }
