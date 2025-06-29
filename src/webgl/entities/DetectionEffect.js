@@ -24,7 +24,7 @@ import { getAsset } from '@99Stud/webgl/utils/manifest/assetsLoader';
 const PARAMS = {
   particles: {
     count: 100,
-    showSquares: false,
+    showSquares: true,
   },
 };
 
@@ -139,8 +139,8 @@ class DetectionEffect extends Object3D {
           // 1:1 texture
           vec4 square = texture2D(tSquare, vUv);
 
-          // Use world position to sample blue noise - create unique coordinates per instance
-          vec2 noiseCoord = fract(vWorldPosition.yy * 10.0 + time);
+          // Use constant noise coordinates for purely random noise
+          vec2 noiseCoord = fract(vWorldPosition.yy * 2.0 + time);
           
           // Sample blue noise texture
           float noiseValue = texture2D(tBlueNoise, noiseCoord).r;

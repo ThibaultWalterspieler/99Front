@@ -1,3 +1,14 @@
+import {
+  DepthFormat,
+  DepthTexture,
+  HalfFloatType,
+  NearestFilter,
+  RGBAFormat,
+  ShaderMaterial,
+  UnsignedShortType,
+  Vector2,
+  WebGLRenderTarget,
+} from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
@@ -21,6 +32,7 @@ import { postProcessingFolder } from '@99Stud/webgl/utils/debugger';
 // import { LUTCubeLoader } from 'three/addons/loaders/LUTCubeLoader.js';
 
 const PARAMS = {
+  renderDepth: true,
   smaa: {
     enabled: false,
     quality: 1,
@@ -65,6 +77,8 @@ const PARAMS = {
 class PostProcessing {
   constructor() {
     this.initialized = false;
+    this.depthRenderTarget = null;
+    this.composer = null;
   }
 
   async init() {
@@ -91,6 +105,7 @@ class PostProcessing {
     this.setupToneMapping();
     this.setupGammaCorrection();
 
+    // TODO: Extend RenderPass to support Depth rendering and pass it instead of the current RenderPass in the PostFX pipeline
     this.composer.addPass(this.renderPass);
     this.composer.addPass(this.smaaPass);
     this.composer.addPass(this.gtaoPass);
@@ -102,6 +117,81 @@ class PostProcessing {
     this.composer.setPixelRatio(dpr);
 
     this.initialized = true;
+  }
+
+  setupDepthRenderTarget(w, h) {
+    const rtParams = {
+      depthBuffer: true,
+      stencilBuffer: true,
+      generateMipmaps: false,
+      type: HalfFloatType,
+      format: RGBAFormat,
+      minFilter: NearestFilter,
+      magFilter: NearestFilter,
+      flipY: false,
+    };
+    this.depthRenderTarget = new WebGLRenderTarget(w, h, rtParams);
+    this.depthRenderTarget.depthTexture = new DepthTexture(w, h);
+    this.depthRenderTarget.depthTexture.type = UnsignedShortType;
+    this.depthRenderTarget.depthTexture.format = DepthFormat;
+
+    const depthShader = new ShaderMaterial({
+      uniforms: {
+        tDepth: { value: null },
+        cameraNear: { value: Camera.near },
+        cameraFar: { value: Camera.far },
+        uResolution: { value: new Vector2(w, h) },
+      },
+      vertexShader: `
+        varying vec2 vUv;
+        
+        void main() {
+          vUv = uv;
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
+      fragmentShader: `
+        uniform sampler2D tDepth;
+        uniform float cameraNear;
+        uniform float cameraFar;
+        uniform vec2 uResolution;
+        varying vec2 vUv;
+
+        #include <packing>
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / uResolution;
+          float depthSample = texture2D(tDepth, uv).r;
+          float depth = perspectiveDepthToViewZ(depthSample, cameraNear, cameraFar);
+          gl_FragColor = vec4(vec3(depthSample), 1.0);
+        }
+      `,
+    });
+
+    this.depthRenderPass = new ShaderPass(depthShader);
+    this.depthRenderPass.material.uniforms.tDepth.value = this.depthRenderTarget.depthTexture;
+    this.depthRenderPass.material.uniforms.tDepth.needsUpdate = true;
+
+    this.updateDepthUniforms();
+  }
+
+  updateDepthUniforms() {
+    if (this.depthRenderPass) {
+      this.depthRenderPass.material.uniforms.cameraNear.value = Camera.near;
+      this.depthRenderPass.material.uniforms.cameraFar.value = Camera.far;
+    }
+  }
+
+  renderDepth(readBuffer) {
+    if (!PARAMS.renderDepth) return;
+
+    Renderer.setRenderTarget(readBuffer);
+    Renderer.render(Scene, Camera);
+    Renderer.setRenderTarget(null);
+
+    Renderer.autoClear = false;
+    Renderer.setRenderTarget(readBuffer);
+    Renderer.render(Scene, Camera);
   }
 
   setupSMAA(w, h) {
@@ -213,9 +303,21 @@ class PostProcessing {
     const { width, height, dpr } = WebGLStore.viewport;
     this.composer.setSize(width, height);
     this.composer.setPixelRatio(dpr);
+
+    // Resize depth render target if it exists
+    if (this.depthRenderTarget) {
+      this.depthRenderTarget.setSize(width, height);
+      this.depthRenderTarget.depthTexture.image.width = width;
+      this.depthRenderTarget.depthTexture.image.height = height;
+    }
   }
 
   render() {
+    // Only render separate depth pass if debugging
+    if (PARAMS.renderDepth) {
+      this.renderDepth();
+    }
+
     this.composer.render();
   }
 }

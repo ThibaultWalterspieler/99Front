@@ -66,7 +66,7 @@ export const assetConfigs = {
     },
     'tex-detection-square': {
       type: 'texture',
-      flipY: true,
+      flipY: false,
     },
   },
 };
