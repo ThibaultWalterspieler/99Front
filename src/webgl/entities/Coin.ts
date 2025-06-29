@@ -3,6 +3,7 @@ import { Color, FrontSide, Mesh, MeshStandardMaterial, Object3D, Vector2, Vector
 import { degToRad } from 'three/src/math/MathUtils.js';
 
 import { CustomDrag } from '@99Stud/webgl/components/CustomDrag';
+import DetectionEffect from '@99Stud/webgl/entities/DetectionEffect';
 import GlobalPointer from '@99Stud/webgl/events/Pointer';
 import { COIN_PARAMS } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
@@ -52,6 +53,7 @@ export default class Coin extends Object3D {
   returnRotationTween!: gsap.core.Tween;
   drag?: CustomDrag;
   initialRotationY!: number;
+  detectionEffect!: DetectionEffect;
 
   constructor(options: CoinOptions = {}) {
     super();
@@ -201,6 +203,10 @@ export default class Coin extends Object3D {
     );
     this.add(this.coin);
 
+    this.detectionEffect = new DetectionEffect();
+    this.coin.add(this.detectionEffect);
+    await this.detectionEffect.init();
+
     await this.transitionIn();
   }
 
@@ -278,10 +284,6 @@ export default class Coin extends Object3D {
       onDragEnd: this.onDragEnd,
     });
   }
-
-  // TODO:
-  // - Debounce onDragStart and onDragEnd to prevent multiple calls and glitches
-  // - Based on the direction lerp the values accordingly in order to prevent multiple 360° rotations
 
   onDragStart = async () => {
     const targetScale = this.settings.scale * 1.25;
@@ -512,6 +514,12 @@ export default class Coin extends Object3D {
       this.coin.position.y = Math.sin(time * 1.2) * 0.01;
     } else {
       this.coin.position.y = Math.sin(time * 1.2) * 0.005;
+    }
+
+    for (const child of this.coin.children) {
+      if (child instanceof DetectionEffect) {
+        child.onTick({ time });
+      }
     }
 
     this.uniforms.uTime.value += 0.01 * rafDamp;
