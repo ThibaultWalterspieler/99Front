@@ -12,6 +12,7 @@ import {
   WebGLRenderTarget,
 } from 'three';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { FilmPass } from 'three/addons/postprocessing/FilmPass.js';
 import { GTAOPass } from 'three/addons/postprocessing/GTAOPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
@@ -25,11 +26,9 @@ import Camera from '@99Stud/webgl/components/Camera';
 import Renderer from '@99Stud/webgl/components/Renderer';
 import Scene from '@99Stud/webgl/components/Scene';
 import { BloomPass } from '@99Stud/webgl/passes/bloomPass';
+import { MotionBlurPass } from '@99Stud/webgl/passes/motionBlurPass';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 import { postProcessingFolder } from '@99Stud/webgl/utils/debugger';
-
-// import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
-// import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 
 // import { LUTPass } from 'three/addons/postprocessing/LUTPass.js';
 // import { LUTCubeLoader } from 'three/addons/loaders/LUTCubeLoader.js';
@@ -95,6 +94,15 @@ const PARAMS = {
   gammaCorrection: {
     enabled: false,
   },
+  filmGrain: {
+    enabled: true,
+    intensity: 1.0,
+    grayscale: false,
+  },
+  motionBlur: {
+    enabled: false,
+    intensity: 0.9,
+  },
 };
 
 class PostProcessing {
@@ -131,10 +139,14 @@ class PostProcessing {
     this.setupBrightnessContrast();
     this.setupToneMapping();
     this.setupGammaCorrection();
+    this.setupFilmGrainPass();
+    this.setupMotionBlurPass();
 
     this.composer.addPass(this.renderPass);
     this.composer.addPass(this.smaaPass);
     this.composer.addPass(this.gtaoPass);
+    this.composer.addPass(this.motionBlurPass);
+    this.composer.addPass(this.filmGrainPass);
     this.composer.addPass(this.bloomPass);
     this.composer.addPass(this.brightnessContrastPass);
     this.composer.addPass(this.toneMappingPass);
@@ -332,6 +344,47 @@ class PostProcessing {
       .addBinding(PARAMS.bloom, 'downRadius', { min: 0, max: 10, step: 0.01 })
       .on('change', (ev) => {
         this.bloomPass.Settings.render.downRadius = ev.value;
+      });
+  }
+
+  setupFilmGrainPass() {
+    this.filmGrainPass = new FilmPass();
+
+    if (!isWebGLDebug) return;
+
+    this.filmGrainFolder = postProcessingFolder.addFolder({ title: 'Film Grain Pass' });
+
+    this.filmGrainFolder.addBinding(PARAMS.filmGrain, 'enabled').on('change', (ev) => {
+      this.filmGrainPass.enabled = ev.value;
+    });
+
+    this.filmGrainFolder
+      .addBinding(PARAMS.filmGrain, 'intensity', { min: 0, max: 10, step: 0.01 })
+      .on('change', (ev) => {
+        this.filmGrainPass.material.uniforms.intensity.value = ev.value;
+      });
+
+    this.filmGrainFolder.addBinding(PARAMS.filmGrain, 'grayscale').on('change', (ev) => {
+      this.filmGrainPass.material.uniforms.grayscale.value = ev.value;
+    });
+  }
+
+  setupMotionBlurPass() {
+    this.motionBlurPass = new MotionBlurPass();
+    this.motionBlurPass.enabled = PARAMS.motionBlur.enabled;
+
+    if (!isWebGLDebug) return;
+
+    this.motionBlurFolder = postProcessingFolder.addFolder({ title: 'Motion Blur Pass' });
+
+    this.motionBlurFolder.addBinding(PARAMS.motionBlur, 'enabled').on('change', (ev) => {
+      this.motionBlurPass.enabled = ev.value;
+    });
+
+    this.motionBlurFolder
+      .addBinding(PARAMS.motionBlur, 'intensity', { min: 0, max: 1, step: 0.01 })
+      .on('change', (ev) => {
+        this.motionBlurPass.settings.render.intensity = ev.value;
       });
   }
 
@@ -563,12 +616,6 @@ class PostProcessing {
     this.debugQuad.material = originalMaterial;
   }
 
-  onResize() {
-    const { width, height, dpr } = WebGLStore.viewport;
-    this.composer.setSize(width, height);
-    this.composer.setPixelRatio(dpr);
-  }
-
   render() {
     this.composer.render();
 
@@ -580,6 +627,12 @@ class PostProcessing {
       this.renderFullScreenDepth();
       return;
     }
+  }
+
+  onResize() {
+    const { width, height, dpr } = WebGLStore.viewport;
+    this.composer.setSize(width, height);
+    this.composer.setPixelRatio(dpr);
   }
 
   dispose() {

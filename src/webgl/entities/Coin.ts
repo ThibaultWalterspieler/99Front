@@ -1,5 +1,14 @@
 import gsap from 'gsap';
-import { Color, FrontSide, Mesh, MeshStandardMaterial, Object3D, Vector2, Vector3 } from 'three';
+import {
+  Color,
+  FrontSide,
+  Mesh,
+  MeshStandardMaterial,
+  NoColorSpace,
+  Object3D,
+  Vector2,
+  Vector3,
+} from 'three';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
 import { CustomDrag } from '@99Stud/webgl/components/CustomDrag';
@@ -84,10 +93,19 @@ export default class Coin extends Object3D {
     const { scene } = getAsset('coin-optimized');
 
     const metallicMap = getAsset('ktx2-metalness');
+    metallicMap.colorSpace = NoColorSpace;
+
     const normalMap = getAsset('tex-normal');
+    normalMap.colorSpace = NoColorSpace;
+
     const roughnessMap = getAsset('ktx2-roughness');
+    roughnessMap.colorSpace = NoColorSpace;
+
     const lightMap = getAsset('ktx2-lightmap');
+    lightMap.colorSpace = NoColorSpace;
+
     const aoMap = getAsset('ktx2-aomap');
+    aoMap.colorSpace = NoColorSpace;
 
     this.coin = scene.children.find(
       (child: Object3D) => child instanceof Mesh && child.name === 'Rabbit_coin',
@@ -286,21 +304,22 @@ export default class Coin extends Object3D {
   }
 
   onDragStart = async () => {
-    const targetScale = this.settings.scale * 1.25;
+    // TODO: Improve zoom feature
+    // const targetScale = this.settings.scale * 1.25;
 
     this.initialRotationY = this.coin.rotation.y;
 
     this.returnRotationTween.kill();
 
-    if (!WebGLStore.deviceSettings.isMobile && WebGLStore.viewport.breakpoints.md) {
-      await gsap.to(this.coin.scale, {
-        x: targetScale,
-        y: targetScale,
-        z: targetScale,
-        duration: 1.0,
-        ease: 'expo.inOut',
-      });
-    }
+    // if (!WebGLStore.deviceSettings.isMobile && WebGLStore.viewport.breakpoints.md) {
+    //   await gsap.to(this.coin.scale, {
+    //     x: targetScale,
+    //     y: targetScale,
+    //     z: targetScale,
+    //     duration: 1.0,
+    //     ease: 'expo.inOut',
+    //   });
+    // }
   };
 
   onDrag = ({ distance }: { distance: { x: number; y: number } }) => {
@@ -327,7 +346,7 @@ export default class Coin extends Object3D {
     direction: { horizontal: string };
     distance: { x: number; y: number };
   }) => {
-    const targetScale = this.settings.scale;
+    // const targetScale = this.settings.scale;
 
     this.dragRotationTween.kill();
 
@@ -352,16 +371,16 @@ export default class Coin extends Object3D {
 
     this.returnRotationTween.invalidate().restart(true);
 
-    await gsap.to(this.coin.scale, {
-      x: targetScale,
-      y: targetScale,
-      z: targetScale,
-      duration: 1.0,
-      ease: 'expo.inOut',
-      onComplete: () => {
-        gsap.killTweensOf(this.coin.scale);
-      },
-    });
+    // await gsap.to(this.coin.scale, {
+    //   x: targetScale,
+    //   y: targetScale,
+    //   z: targetScale,
+    //   duration: 1.0,
+    //   ease: 'expo.inOut',
+    //   onComplete: () => {
+    //     gsap.killTweensOf(this.coin.scale);
+    //   },
+    // });
   };
 
   addDebug() {
