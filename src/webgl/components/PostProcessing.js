@@ -73,7 +73,7 @@ const PARAMS = {
     },
   },
   bloom: {
-    enabled: true,
+    enabled: false,
     brightness: 0.3,
     contrast: 0,
     saturation: 0,
@@ -146,10 +146,10 @@ class PostProcessing {
     this.composer.addPass(this.smaaPass);
     this.composer.addPass(this.gtaoPass);
     this.composer.addPass(this.motionBlurPass);
-    this.composer.addPass(this.filmGrainPass);
     this.composer.addPass(this.bloomPass);
     this.composer.addPass(this.brightnessContrastPass);
     this.composer.addPass(this.toneMappingPass);
+    this.composer.addPass(this.filmGrainPass);
     this.composer.addPass(this.gammaCorrectionPass);
     this.composer.addPass(this.outputPass);
 
