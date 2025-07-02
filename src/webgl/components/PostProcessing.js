@@ -73,14 +73,14 @@ const PARAMS = {
     },
   },
   bloom: {
-    enabled: false,
+    enabled: true,
     brightness: 0.3,
     contrast: 0,
     saturation: 0,
     strength: 0.57,
     upRadius: 1.52,
-    downRadius: 4.24,
-    mixFactor: 0.34,
+    downRadius: 1.34,
+    mixFactor: 0.06,
   },
   brightnessContrast: {
     enabled: false,
@@ -96,7 +96,7 @@ const PARAMS = {
   },
   filmGrain: {
     enabled: true,
-    intensity: 1.0,
+    intensity: 1.3, // 1.0 desktop
     grayscale: false,
   },
   motionBlur: {
