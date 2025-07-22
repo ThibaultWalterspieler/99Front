@@ -22,8 +22,9 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: '99stud | Creative Independent Collective',
-  description: '99stud is a creative independent collective that makes things happen.',
+  title: '99stud | Independent Creative Collective',
+  description:
+    'Multidisciplinary collective based in Paris, Lyon and Milan. Blurring the lines between web, 3D and music.',
   icons: [
     {
       rel: 'icon',
@@ -43,8 +44,9 @@ export const metadata: Metadata = {
   publisher: '99stud',
   openGraph: {
     type: 'website',
-    title: '99stud | Creative Independent Collective',
-    description: '99stud is a creative independent collective that makes things happen.',
+    title: '99stud | Independent Creative Collective',
+    description:
+      'Multidisciplinary collective based in Paris, Lyon and Milan. Blurring the lines between web, 3D and music.',
   },
 };
 
