@@ -3,8 +3,6 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  overflow: hidden;
-  overscroll-behavior-y: none;
 }
 
 @theme inline {
@@ -24,20 +22,4 @@
 body {
   background: var(--background);
   color: var(--foreground);
-  overflow: hidden;
-  position: fixed;
-  width: 100%;
-  height: 100%;
-  overscroll-behavior-y: none;
-  -webkit-overflow-scrolling: touch;
-  touch-action: none;
-}
-
-html {
-  overflow: hidden;
-  position: relative;
-  height: 100%;
-  width: 100%;
-  overscroll-behavior-y: none;
-  touch-action: none;
 }
