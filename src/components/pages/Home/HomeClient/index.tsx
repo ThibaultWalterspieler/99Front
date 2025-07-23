@@ -11,10 +11,6 @@ const LazyLoadedWebGLContext = dynamic(
   },
 );
 
-interface Props {
-  className?: string;
-}
-
-export const HomeClient: FC<Props> = ({ className }) => {
-  return <LazyLoadedWebGLContext className={clsx(className)} />;
+export const HomeClient: FC = () => {
+  return <LazyLoadedWebGLContext className={clsx('fixed inset-0')} />;
 };

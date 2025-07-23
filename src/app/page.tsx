@@ -8,11 +8,11 @@ import { HomeClient } from '@components/pages/Home/HomeClient';
 
 const Home: FC = () => {
   return (
-    <main className={clsx('fixed inset-0 overflow-hidden')}>
-      <HomeClient className={clsx('absolute inset-0 -z-10')} />
+    <main>
+      <HomeClient />
       <header
         className={clsx(
-          'relative h-full w-full',
+          'fixed h-dvh w-dvw',
           'grid grid-cols-1 grid-rows-3 md:grid-cols-2 md:grid-rows-2',
         )}
       >
@@ -39,7 +39,7 @@ const Home: FC = () => {
         </nav>
         <div
           className={clsx(
-            'col-start-1 row-start-3 hidden md:col-start-2 md:row-start-2',
+            'col-start-1 row-start-3 md:col-start-2 md:row-start-2',
             'flex items-center justify-center gap-3',
             'text-white select-none',
           )}
