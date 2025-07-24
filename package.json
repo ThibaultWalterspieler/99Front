@@ -21,7 +21,7 @@
     "glsl-noise": "0.0.0",
     "gsap": "3.13.0",
     "meshoptimizer": "0.24.0",
-    "next": "15.4.2",
+    "next": "15.4.3",
     "postprocessing": "6.37.6",
     "react": "19.1.0",
     "react-dom": "19.1.0",
@@ -32,14 +32,14 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
-    "@next/eslint-plugin-next": "15.4.2",
+    "@next/eslint-plugin-next": "15.4.3",
     "@tailwindcss/postcss": "4.1.11",
     "@types/node": "22.15.30",
     "@types/react": "19.1.8",
     "@types/react-dom": "19.1.6",
     "@types/three": "0.178.1",
     "eslint": "9.31.0",
-    "eslint-config-next": "15.4.2",
+    "eslint-config-next": "15.4.3",
     "eslint-plugin-react-hooks": "5.2.0",
     "prettier": "3.6.2",
     "prettier-plugin-tailwindcss": "0.6.14",
@@ -48,7 +48,7 @@
     "three-perf": "1.0.11",
     "tweakpane": "4.0.5",
     "typescript": "5.8.3",
-    "typescript-plugin-css-modules": "5.1.0"
+    "typescript-plugin-css-modules": "5.2.0"
   },
   "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
 }
