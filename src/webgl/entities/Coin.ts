@@ -1,8 +1,18 @@
 import gsap from 'gsap';
-import { Color, FrontSide, Mesh, MeshStandardMaterial, Object3D, Vector2, Vector3 } from 'three';
+import {
+  Color,
+  FrontSide,
+  Mesh,
+  MeshStandardMaterial,
+  NoColorSpace,
+  Object3D,
+  Vector2,
+  Vector3,
+} from 'three';
 import { degToRad } from 'three/src/math/MathUtils.js';
 
 import { CustomDrag } from '@99Stud/webgl/components/CustomDrag';
+import DetectionEffect from '@99Stud/webgl/entities/DetectionEffect';
 import GlobalPointer from '@99Stud/webgl/events/Pointer';
 import { COIN_PARAMS } from '@99Stud/webgl/store/constants';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
@@ -52,6 +62,7 @@ export default class Coin extends Object3D {
   returnRotationTween!: gsap.core.Tween;
   drag?: CustomDrag;
   initialRotationY!: number;
+  detectionEffect!: DetectionEffect;
 
   constructor(options: CoinOptions = {}) {
     super();
@@ -82,10 +93,19 @@ export default class Coin extends Object3D {
     const { scene } = getAsset('coin-optimized');
 
     const metallicMap = getAsset('ktx2-metalness');
+    metallicMap.colorSpace = NoColorSpace;
+
     const normalMap = getAsset('tex-normal');
+    normalMap.colorSpace = NoColorSpace;
+
     const roughnessMap = getAsset('ktx2-roughness');
+    roughnessMap.colorSpace = NoColorSpace;
+
     const lightMap = getAsset('ktx2-lightmap');
+    lightMap.colorSpace = NoColorSpace;
+
     const aoMap = getAsset('ktx2-aomap');
+    aoMap.colorSpace = NoColorSpace;
 
     this.coin = scene.children.find(
       (child: Object3D) => child instanceof Mesh && child.name === 'Rabbit_coin',
@@ -201,6 +221,10 @@ export default class Coin extends Object3D {
     );
     this.add(this.coin);
 
+    // this.detectionEffect = new DetectionEffect();
+    // this.coin.add(this.detectionEffect);
+    // await this.detectionEffect.init();
+
     await this.transitionIn();
   }
 
@@ -279,27 +303,23 @@ export default class Coin extends Object3D {
     });
   }
 
-  // TODO:
-  // - Debounce onDragStart and onDragEnd to prevent multiple calls and glitches
-  // - Based on the direction lerp the values accordingly in order to prevent multiple 360° rotations
-
   onDragStart = async () => {
-    const targetScale =
-      WebGLStore.deviceSettings.isMobile || !WebGLStore.viewport.breakpoints.md
-        ? this.settings.scale * 1.2
-        : this.settings.scale * 1.05;
+    // TODO: Improve zoom feature
+    // const targetScale = this.settings.scale * 1.25;
 
     this.initialRotationY = this.coin.rotation.y;
 
     this.returnRotationTween.kill();
 
-    await gsap.to(this.coin.scale, {
-      x: targetScale,
-      y: targetScale,
-      z: targetScale,
-      duration: 1.0,
-      ease: 'expo.inOut',
-    });
+    // if (!WebGLStore.deviceSettings.isMobile && WebGLStore.viewport.breakpoints.md) {
+    //   await gsap.to(this.coin.scale, {
+    //     x: targetScale,
+    //     y: targetScale,
+    //     z: targetScale,
+    //     duration: 1.0,
+    //     ease: 'expo.inOut',
+    //   });
+    // }
   };
 
   onDrag = ({ distance }: { distance: { x: number; y: number } }) => {
@@ -326,7 +346,7 @@ export default class Coin extends Object3D {
     direction: { horizontal: string };
     distance: { x: number; y: number };
   }) => {
-    const targetScale = this.settings.scale;
+    // const targetScale = this.settings.scale;
 
     this.dragRotationTween.kill();
 
@@ -351,16 +371,16 @@ export default class Coin extends Object3D {
 
     this.returnRotationTween.invalidate().restart(true);
 
-    await gsap.to(this.coin.scale, {
-      x: targetScale,
-      y: targetScale,
-      z: targetScale,
-      duration: 1.0,
-      ease: 'expo.inOut',
-      onComplete: () => {
-        gsap.killTweensOf(this.coin.scale);
-      },
-    });
+    // await gsap.to(this.coin.scale, {
+    //   x: targetScale,
+    //   y: targetScale,
+    //   z: targetScale,
+    //   duration: 1.0,
+    //   ease: 'expo.inOut',
+    //   onComplete: () => {
+    //     gsap.killTweensOf(this.coin.scale);
+    //   },
+    // });
   };
 
   addDebug() {
@@ -369,6 +389,7 @@ export default class Coin extends Object3D {
       typeof (sceneFolderTyped as { addFolder?: unknown }).addFolder !== 'function'
     )
       return;
+
     const coinFolder = (
       sceneFolderTyped as { addFolder: (opts: { title: string }) => unknown }
     ).addFolder({ title: 'Coin' }) as {
@@ -513,6 +534,12 @@ export default class Coin extends Object3D {
     } else {
       this.coin.position.y = Math.sin(time * 1.2) * 0.005;
     }
+
+    // for (const child of this.coin.children) {
+    //   if (child instanceof DetectionEffect) {
+    //     child.onTick({ time });
+    //   }
+    // }
 
     this.uniforms.uTime.value += 0.01 * rafDamp;
   }

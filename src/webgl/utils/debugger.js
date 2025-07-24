@@ -20,7 +20,7 @@ let tweak = null;
 let tweakFolder = null;
 export let rendererFolder = null;
 export let sceneFolder = null;
-export let postFxFolder = null;
+export let postProcessingFolder = null;
 let tweakContainer = null;
 let tweakWrapper = null;
 let tweakDragger = null;
@@ -32,11 +32,11 @@ if (isWebGLDebug) {
   tweak.hidden = false;
   tweakFolder = tweak.addFolder({ title: 'Debugger' });
   const tabs = tweakFolder.addTab({
-    pages: [{ title: 'Renderer' }, { title: 'Scene' }, { title: 'PostFX' }],
+    pages: [{ title: 'Renderer' }, { title: 'Scene' }, { title: 'PostProcessing' }],
   });
   rendererFolder = tabs.pages[0];
   sceneFolder = tabs.pages[1];
-  postFxFolder = tabs.pages[2];
+  postProcessingFolder = tabs.pages[2];
 
   tweakContainer = tweak.containerElem_;
   tweakWrapper = document.createElement('div');

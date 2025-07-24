@@ -9,10 +9,10 @@ import { HomeClient } from '@components/pages/Home/HomeClient';
 const Home: FC = () => {
   return (
     <main>
-      <HomeClient className={clsx('fixed -z-10', 'h-screen w-screen')} />
+      <HomeClient />
       <header
         className={clsx(
-          'h-dvh w-dvw',
+          'fixed h-dvh w-dvw',
           'grid grid-cols-1 grid-rows-3 md:grid-cols-2 md:grid-rows-2',
         )}
       >

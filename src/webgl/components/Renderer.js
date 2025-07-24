@@ -1,5 +1,5 @@
 import Stats from 'stats-js';
-import { ACESFilmicToneMapping, Color, WebGLRenderer } from 'three';
+import { SRGBColorSpace, WebGLRenderer } from 'three';
 
 import GlobalRaf from '@99Stud/webgl/events/Raf';
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
@@ -9,13 +9,14 @@ class Renderer extends WebGLRenderer {
   constructor() {
     super({
       powerPreference: 'high-performance',
-      antialias: true,
+      antialias: false,
       depth: true,
+      preserveDrawingBuffer: true,
+      logarithmicDepthBuffer: true,
     });
 
-    this.toneMapping = ACESFilmicToneMapping;
-    this.toneMappingExposure = 1;
-    this.setClearColor(new Color('#000000'), 1);
+    // PostFX
+    this.outputColorSpace = SRGBColorSpace;
 
     this.addStats();
     this.addDebug();

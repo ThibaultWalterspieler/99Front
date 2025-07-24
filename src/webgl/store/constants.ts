@@ -1,7 +1,6 @@
 import WebGLStore from '@99Stud/webgl/store/WebGLStore';
 
 export const CONTROLS_ENABLED = false;
-export const DEBUG_ENABLED = false;
 
 export const COIN_PARAMS = {
   debugPointer: false,
@@ -36,12 +35,11 @@ export const COIN_PARAMS = {
 };
 
 export const BACKGROUND_PARAMS = {
-  colorInner: '#54535a',
+  colorInner: '#83828d',
   colorMid: '#131e20',
   colorOuter: '#000000',
-  blurriness: 0,
   gradientScale1: 0,
   gradientScale2: 0.32,
-  gradientScale3: 0.4,
-  gradientSpeed: 0.3,
+  gradientScale3: 1.776,
+  gradientSpeed: 0.5,
 };

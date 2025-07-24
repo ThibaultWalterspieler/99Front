@@ -56,14 +56,13 @@ export const WebGLContext: FC<Props> = ({ className }) => {
         className,
         styles['webgl-wrapper'],
         'overflow-hidden',
-        'pointer-events-none touch-none select-none',
+        'pointer-events-none touch-none overscroll-none select-none',
       )}
       ref={webglWrapperRef}
       style={{
         WebkitTouchCallout: 'none',
-        WebkitUserSelect: 'none',
         WebkitTapHighlightColor: 'transparent',
-        touchAction: 'none',
+        WebkitOverflowScrolling: 'touch',
       }}
     />
   );
