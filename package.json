@@ -7,8 +7,9 @@
     "dev:webgl": "NEXT_PUBLIC_WEBGL_DEBUG=true next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "format": "prettier --write ."
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "typecheck": "tsc --noEmit --incremental false"
   },
   "dependencies": {
     "@radix-ui/react-icons": "1.3.2",
@@ -20,35 +21,42 @@
     "glsl-fxaa": "3.0.0",
     "glsl-noise": "0.0.0",
     "gsap": "3.13.0",
-    "meshoptimizer": "0.24.0",
-    "next": "15.4.3",
-    "postprocessing": "6.37.6",
-    "react": "19.1.0",
-    "react-dom": "19.1.0",
-    "sass": "1.89.2",
-    "three": "0.178.0",
+    "meshoptimizer": "0.25.0",
+    "next": "16.0.3",
+    "postprocessing": "6.38.0",
+    "react": "19.2.0",
+    "react-dom": "19.2.0",
+    "sass": "1.94.0",
+    "three": "0.181.1",
     "tiny-emitter": "2.1.0",
     "usehooks-ts": "3.1.1"
   },
   "devDependencies": {
     "@eslint/eslintrc": "3.3.1",
-    "@next/eslint-plugin-next": "15.4.3",
-    "@tailwindcss/postcss": "4.1.11",
+    "@next/eslint-plugin-next": "16.0.3",
+    "@tailwindcss/postcss": "4.1.17",
     "@types/node": "22.15.30",
-    "@types/react": "19.1.8",
-    "@types/react-dom": "19.1.6",
-    "@types/three": "0.178.1",
-    "eslint": "9.31.0",
-    "eslint-config-next": "15.4.3",
-    "eslint-plugin-react-hooks": "5.2.0",
+    "@types/react": "19.2.5",
+    "@types/react-dom": "19.2.3",
+    "@types/three": "0.181.0",
+    "babel-plugin-react-compiler": "1.0.0",
+    "eslint": "9.39.1",
+    "eslint-config-next": "16.0.3",
+    "eslint-plugin-react-hooks": "7.0.1",
     "prettier": "3.6.2",
-    "prettier-plugin-tailwindcss": "0.6.14",
+    "prettier-plugin-tailwindcss": "0.7.1",
     "stats-js": "1.0.1",
-    "tailwindcss": "4.1.11",
+    "tailwindcss": "4.1.17",
     "three-perf": "1.0.11",
     "tweakpane": "4.0.5",
-    "typescript": "5.8.3",
+    "typescript": "5.9.3",
     "typescript-plugin-css-modules": "5.2.0"
   },
-  "packageManager": "pnpm@10.12.1+sha512.f0dda8580f0ee9481c5c79a1d927b9164f2c478e90992ad268bbb2465a736984391d6333d2c327913578b2804af33474ca554ba29c04a8b13060a717675ae3ac"
+  "packageManager": "pnpm@10.22.0+sha512.bf049efe995b28f527fd2b41ae0474ce29186f7edcb3bf545087bd61fbbebb2bf75362d1307fda09c2d288e1e499787ac12d4fcb617a974718a6051f2eee741c",
+  "pnpm": {
+    "overrides": {
+      "@types/react": "19.2.5",
+      "@types/react-dom": "19.2.3"
+    }
+  }
 }

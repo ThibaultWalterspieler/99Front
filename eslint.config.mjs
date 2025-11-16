@@ -1,22 +1,15 @@
-import { dirname } from 'path';
-import { fileURLToPath } from 'url';
+import nextVitals from 'eslint-config-next/core-web-vitals';
+import nextTs from 'eslint-config-next/typescript';
+import prettier from 'eslint-config-prettier/flat';
+import reactHooks from 'eslint-plugin-react-hooks';
+// eslint-disable-next-line import/order
+import { defineConfig, globalIgnores } from 'eslint/config';
 
-import { FlatCompat } from '@eslint/eslintrc';
-import eslintConfigPrettier from 'eslint-config-prettier/flat';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
-
-const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-  eslintConfigPrettier,
-  {
-    ignores: ['**/public/**'],
-  },
+const eslintConfig = defineConfig([
+  ...nextVitals,
+  ...nextTs,
+  reactHooks.configs.flat.recommended,
+  prettier,
   {
     rules: {
       '@typescript-eslint/no-unused-vars': [
@@ -74,6 +67,14 @@ const eslintConfig = [
       ],
     },
   },
-];
+  globalIgnores([
+    // Default ignores of eslint-config-next:
+    'public/**',
+    '.next/**',
+    'out/**',
+    'build/**',
+    'next-env.d.ts',
+  ]),
+]);
 
 export default eslintConfig;
