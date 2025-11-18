@@ -25,7 +25,9 @@
       "@components/*": ["./src/components/*"],
       "@webgl/*": ["./src/webgl/*"],
       "@lib/*": ["./src/lib/*"],
-      "@99Stud/*": ["./src/*"]
+      "@99Stud/*": ["./src/*"],
+      "@payload-config": ["./src/payload.config.ts"],
+      "@payload-types": ["./src/payload/payload-types.ts"]
     }
   },
   "include": [
